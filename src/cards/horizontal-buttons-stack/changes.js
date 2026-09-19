@@ -1,9 +1,11 @@
 import { isColorCloseToWhite } from "../../tools/style.js";
-import { isDocumentRTL } from "../../tools/utils.js";
+import { createElement, isDocumentRTL } from "../../tools/utils.js";
 import { createButton } from './create.js';
 import { resolveTemplate } from "../../tools/render-template.js";
-import { getStoredButtonWidth, storeButtonWidth } from './button-width-storage.js';
+import { getButtonWidthStorageKey, getStoredButtonWidth, storeButtonWidth } from './button-width-storage.js';
+import { getConfiguredButtonIndexes, hasButtonConfig } from './config.js';
 import { handleCustomStyles } from '../../tools/style-processor.js';
+import { addActions, removeActions } from '../../tools/tap-actions.js';
 
 const BUTTON_MARGIN = 12;
 
@@ -45,8 +47,8 @@ export function placeButtons(context) {
     // Buttons are anchored at the inline start, so in RTL they grow leftward
     const directionFactor = isDocumentRTL() ? -1 : 1;
     for (let i = 0; i < context.elements.buttons.length; ++i) {
-        const link = context.elements.buttons[i].link;
-        let buttonWidth = getStoredButtonWidth(link);
+        const storageKey = context.elements.buttons[i].storageKey;
+        let buttonWidth = getStoredButtonWidth(storageKey);
 
         context.elements.buttons[i].style.width = '';
         const newWidth = context.elements.buttons[i].offsetWidth;
@@ -54,7 +56,7 @@ export function placeButtons(context) {
 
         if (newWidth > 0) {
           buttonWidth = newWidth;
-          storeButtonWidth(link, newWidth);
+          storeButtonWidth(storageKey, newWidth);
         }
 
         if (buttonWidth !== null) {
@@ -104,10 +106,28 @@ export function changeConfig(context) {
         const sensor = context.config[`${index}_pir_sensor`];
         const link = context.config[`${index}_link`];
         const entity = context.config[`${index}_entity`];
+        const buttonAction = context.config[`${index}_button_action`];
+        const hadButtonAction = button.buttonAction !== undefined;
+        const buttonActionSignature = JSON.stringify({ buttonAction, entity });
 
         button.pirSensor = sensor;
         button.lightEntity = entity;
         button.link = link;
+        button.buttonAction = buttonAction;
+        button.storageKey = getButtonWidthStorageKey(link, index);
+
+        if (buttonAction !== undefined) {
+            if (button.buttonActionSignature !== buttonActionSignature) {
+                addActions(button, buttonAction, entity);
+            }
+        } else if (hadButtonAction) {
+            removeActions(button);
+            if (!button.haRipple) {
+                button.haRipple = createElement('ha-ripple');
+                button.appendChild(button.haRipple);
+            }
+        }
+        button.buttonActionSignature = buttonActionSignature;
 
         if (name) {
             button.name.innerText = name;
@@ -122,7 +142,7 @@ export function changeConfig(context) {
             button.icon.style.display = 'none';
         }
 
-        if (link === undefined) {
+        if (!hasButtonConfig(context.config, index)) {
             button.remove();
             context.elements.buttons = context.elements.buttons.filter((btn) => btn !== button);
             // Renumber by config slot, never by position in the list. index is
@@ -142,13 +162,11 @@ export function changeConfig(context) {
     // starting past the end of the list: sortButtons reorders that list and the
     // removal above shrinks it, so its length tells us nothing about which
     // index is missing. createButton registers and appends the button itself.
-    let index = 1;
-    while (context.config[`${index}_link`] !== undefined) {
+    for (const index of getConfiguredButtonIndexes(context.config)) {
         const existingButton = context.elements.buttons.find(button => button.index === index);
         if (!existingButton) {
             createButton(context, index);
         }
-        index++;
     }
 }
 export function changeStatus(context) {

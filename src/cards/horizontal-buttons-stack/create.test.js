@@ -44,6 +44,7 @@ const forwardHaptic = jest.fn();
 const navigate = jest.fn();
 const addHash = jest.fn();
 const removeHash = jest.fn();
+const addActions = jest.fn();
 
 jest.unstable_mockModule('./styles.css', () => ({
     default: '',
@@ -58,6 +59,10 @@ jest.unstable_mockModule('../../tools/utils.js', () => ({
 jest.unstable_mockModule('../pop-up/helpers.js', () => ({
     addHash,
     removeHash,
+}));
+
+jest.unstable_mockModule('../../tools/tap-actions.js', () => ({
+    addActions,
 }));
 
 const startContentInsetSync = jest.fn();
@@ -79,6 +84,16 @@ function buildContext(link) {
             cardContainer: createMockElement('div'),
         },
     };
+}
+
+function buildActionContext(buttonAction, link) {
+    const context = buildContext(link);
+    if (link === undefined) {
+        delete context.config['1_link'];
+    }
+    context.config['1_entity'] = 'light.kitchen';
+    context.config['1_button_action'] = buttonAction;
+    return context;
 }
 
 function clickButton(button) {
@@ -136,5 +151,35 @@ describe('horizontal buttons stack navigation', () => {
 
         expect(navigate).toHaveBeenCalledWith(button, '/lovelace/');
         expect(addHash).not.toHaveBeenCalled();
+    });
+
+    test('uses the shared action machinery for an action-only button', () => {
+        const action = {
+            tap_action: { action: 'toggle' },
+            hold_action: { action: 'more-info' },
+            double_tap_action: { action: 'none' },
+        };
+        const context = buildActionContext(action);
+
+        const button = createButton(context, 1);
+        clickButton(button);
+
+        expect(addActions).toHaveBeenCalledWith(button, action, 'light.kitchen');
+        expect(button.storageKey).toBe('button-1');
+        expect(navigate).not.toHaveBeenCalled();
+        expect(addHash).not.toHaveBeenCalled();
+        expect(removeHash).not.toHaveBeenCalled();
+    });
+
+    test('prefers button actions and keeps the link only as fallback', () => {
+        const action = { tap_action: { action: 'toggle' } };
+        const context = buildActionContext(action, '#kitchen');
+
+        const button = createButton(context, 1);
+        clickButton(button);
+
+        expect(addActions).toHaveBeenCalledWith(button, action, 'light.kitchen');
+        expect(addHash).not.toHaveBeenCalled();
+        expect(button.storageKey).toBe('#kitchen');
     });
 });

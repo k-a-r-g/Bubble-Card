@@ -11,6 +11,10 @@
 
 const KEY_PREFIX = 'bubbleButtonWidth-';
 
+export function getButtonWidthStorageKey(link, index) {
+    return link || `button-${index}`;
+}
+
 export function getStoredButtonWidth(link) {
     try {
         return localStorage.getItem(`${KEY_PREFIX}${link}`);

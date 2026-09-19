@@ -39,7 +39,7 @@ win.isScrolling = false;
 global.window = win;
 global.document = doc;
 
-const { addActions } = await import('./tap-actions.js');
+const { addActions, removeActions } = await import('./tap-actions.js');
 
 /** Builds an event whose composedPath reaches the card, as a real press does. */
 function press(type, target, { x = 10, y = 10, touch = false } = {}) {
@@ -68,6 +68,46 @@ function makeCard(config = {}) {
   el.addEventListener('hass-action', (e) => fired.push(e.detail?.action ?? 'action'));
   return { el, fired };
 }
+
+describe('updating actions on an existing element', () => {
+  beforeEach(() => { jest.clearAllMocks(); win.isScrolling = false; });
+
+  test('reuses its ripple when actions are updated', () => {
+    const el = makeElement();
+
+    addActions(el, { tap_action: { action: 'toggle' } }, 'light.test');
+    const ripple = el.haRipple;
+    addActions(el, { hold_action: { action: 'more-info' } }, 'light.test');
+
+    expect(el.haRipple).toBe(ripple);
+    expect(createElement).toHaveBeenCalledTimes(1);
+  });
+
+  test('the next press uses the updated action config', () => {
+    const el = makeElement();
+    const fired = [];
+    el.addEventListener('hass-action', (event) => fired.push(event.detail.config.tap_action.action));
+    addActions(el, { tap_action: { action: 'toggle' } }, 'light.test');
+
+    body.dispatchEvent(press('pointerdown', el));
+    el.dispatchEvent(press('pointerup', el));
+    addActions(el, { tap_action: { action: 'more-info' } }, 'light.test');
+    body.dispatchEvent(press('pointerdown', el));
+    el.dispatchEvent(press('pointerup', el));
+
+    expect(fired).toEqual(['toggle', 'more-info']);
+  });
+
+  test('can remove action handling so a legacy click fallback can take over', () => {
+    const el = makeElement();
+    addActions(el, { tap_action: { action: 'toggle' } }, 'light.test');
+
+    removeActions(el);
+
+    expect(el.classList.contains('bubble-action')).toBe(false);
+    expect(el.dataset.tapAction).toBeUndefined();
+  });
+});
 
 // A cancelled touch means the OS took the gesture over: an Android navigation
 // swipe, a scroll hand-off, an app switch. It is not a release, and it must

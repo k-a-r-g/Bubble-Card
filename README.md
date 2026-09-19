@@ -284,7 +284,8 @@ This card is a good companion to the pop-up card, allowing you to open the corre
 
 | Name | Type | Requirement | Supported options | Description |
 | --- | --- | --- | --- | --- |
-| `1_link` | string | **Required** | The pop-up hash (e.g. `'#kitchen'`) with ' ' or any link | A link to open |
+| `1_link` | string | Optional* | The pop-up hash (e.g. `'#kitchen'`) with ' ' or any link | A link to open. Used as the button's tap fallback when `1_button_action` is not configured |
+| `1_button_action` | object | Optional* | `tap_action`, `double_tap_action` or `hold_action`, see [actions](#tap-double-tap-and-hold-actions) | Configure full Home Assistant-style actions for this button |
 | `1_name` | string | Optional | Any string | A name for your button |
 | `1_icon` | string | Optional | Any `mdi:` icon | An icon for your button |
 | `1_entity` | string | Optional | Any light or light group | Display the color of that light in background |
@@ -299,6 +300,7 @@ This card is a good companion to the pop-up card, allowing you to open the corre
 
 > [!IMPORTANT]  
 > The variables starting with a number define your buttons, just change this number to add more buttons (see example below).
+> Each button needs either its numbered `_link` or `_button_action`. If both are present, `_button_action` is used and `_link` remains available as the backward-compatible fallback if the action configuration is removed.
 
 </details>
 
@@ -342,6 +344,34 @@ auto_order: true
 3_entity: light.dining_room
 3_pir_sensor: binary_sensor.dining_room_motion
 ```
+
+</details>
+
+<details>
+
+<summary><b>Action-only button example</b></summary>
+
+<br>
+
+```yaml
+type: custom:bubble-card
+card_type: horizontal-buttons-stack
+1_name: Toggle kitchen
+1_icon: mdi:lightbulb
+1_entity: light.kitchen
+1_button_action:
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+  double_tap_action:
+    action: perform-action
+    perform_action: light.turn_off
+    target:
+      area_id: kitchen
+```
+
+`1_entity` continues to control the button's state/color display. It is independent from the entities or targets used by `1_button_action`.
 
 </details>
 

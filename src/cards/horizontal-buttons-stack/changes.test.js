@@ -49,6 +49,8 @@ function createMockElement(tag = 'div', classNames = '') {
 }
 
 const createElement = jest.fn((tag, classNames = '') => createMockElement(tag, classNames));
+const addActions = jest.fn();
+const removeActions = jest.fn();
 
 jest.unstable_mockModule('./styles.css', () => ({
     default: '',
@@ -80,6 +82,11 @@ jest.unstable_mockModule('../../tools/style.js', () => ({
 
 jest.unstable_mockModule('../../tools/style-processor.js', () => ({
     handleCustomStyles: jest.fn(),
+}));
+
+jest.unstable_mockModule('../../tools/tap-actions.js', () => ({
+    addActions,
+    removeActions,
 }));
 
 const { createStructure } = await import('./create.js');
@@ -209,9 +216,62 @@ describe('changeConfig adding a button to a live stack', () => {
         ]);
         expect(context.elements.cardContainer.children).toContain(context.elements.buttons[1]);
     });
+
+    test('discovers and creates an action-only button', () => {
+        const context = buildContext();
+        createStructure(context);
+        const action = { tap_action: { action: 'toggle' } };
+        context.config['3_name'] = 'All lights';
+        context.config['3_entity'] = 'light.all_lights';
+        context.config['3_button_action'] = action;
+
+        changeConfig(context);
+
+        const button = context.elements.buttons.find((candidate) => candidate.index === 3);
+        expect(button).toBeDefined();
+        expect(button.link).toBeUndefined();
+        expect(button.lightEntity).toBe('light.all_lights');
+        expect(button.storageKey).toBe('button-3');
+        expect(addActions).toHaveBeenCalledWith(button, action, 'light.all_lights');
+    });
+
+    test('keeps a button when its link is removed but its action remains', () => {
+        const context = buildContext();
+        context.config['2_button_action'] = { tap_action: { action: 'more-info' } };
+        createStructure(context);
+
+        delete context.config['2_link'];
+        changeConfig(context);
+
+        expect(context.elements.buttons.find((button) => button.index === 2)).toBeDefined();
+        expect(context.elements.buttons).toHaveLength(2);
+    });
+
+    test('updates live action data and restores the link fallback when actions are removed', () => {
+        const context = buildContext();
+        const firstAction = { tap_action: { action: 'toggle' } };
+        context.config['1_button_action'] = firstAction;
+        createStructure(context);
+        const button = context.elements.buttons.find((candidate) => candidate.index === 1);
+        jest.clearAllMocks();
+
+        const nextAction = { hold_action: { action: 'more-info' } };
+        context.config['1_button_action'] = nextAction;
+        changeConfig(context);
+
+        expect(addActions).toHaveBeenCalledWith(button, nextAction, undefined);
+        expect(removeActions).not.toHaveBeenCalled();
+
+        jest.clearAllMocks();
+        delete context.config['1_button_action'];
+        changeConfig(context);
+
+        expect(removeActions).toHaveBeenCalledWith(button);
+        expect(button.link).toBe('#kitchen');
+    });
 });
 
-const BUTTON_FIELDS = ['_name', '_icon', '_link', '_entity', '_pir_sensor'];
+const BUTTON_FIELDS = ['_name', '_icon', '_link', '_button_action', '_entity', '_pir_sensor'];
 
 // Mirrors removeButton in editor.js: deleting a button shifts every following
 // button down a slot, so the configured slots stay contiguous.

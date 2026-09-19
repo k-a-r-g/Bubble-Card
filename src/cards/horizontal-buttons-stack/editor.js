@@ -1,16 +1,13 @@
 import { html } from "lit";
 import { fireEvent } from '../../tools/utils.js';
 import setupTranslation from '../../tools/localize.js';
+import { getLastConfiguredButtonIndex } from './config.js';
 
 export function renderHorButtonStackEditor(editor){
     const t = setupTranslation(editor.hass);
     if (!editor.buttonAdded) {
         editor.buttonAdded = true;
-        editor.buttonIndex = 0;
-
-        while (editor._config[(editor.buttonIndex + 1) + '_link']) {
-            editor.buttonIndex++;
-        }
+        editor.buttonIndex = getLastConfiguredButtonIndex(editor._config);
     }
 
     function addButton() {
@@ -134,6 +131,8 @@ function makeButton(editor) {
     const t = setupTranslation(editor.hass);
     let buttons = [];
     for (let i = 1; i <= editor.buttonIndex; i++) {
+        const actionKey = `${i}_button_action`;
+        const buttonAction = editor._config[actionKey] || {};
         buttons.push(html`
             <div class="${i}_button">
                 <ha-expansion-panel outlined>
@@ -151,7 +150,7 @@ function makeButton(editor) {
                             .hass=${editor.hass}
                             .data=${{ [i + '_link']: editor._config[i + '_link'] || '' }}
                             .schema=${[{ name: i + '_link', selector: { text: {} } }]}
-                            .computeLabel=${() => t('editor.hbs.link_hash')}
+                            .computeLabel=${() => editor._optionalLabel(t('editor.hbs.link_hash'))}
                             @value-changed=${(ev) => {
                                 editor._valueChanged({
                                     target: { configValue: i + '_link' },
@@ -159,6 +158,9 @@ function makeButton(editor) {
                                 });
                             }}
                         ></ha-form>
+                        ${editor.makeActionPanel('tap', buttonAction, 'none', actionKey)}
+                        ${editor.makeActionPanel('double_tap', buttonAction, 'none', actionKey)}
+                        ${editor.makeActionPanel('hold', buttonAction, 'none', actionKey)}
                         <ha-form
                             .hass=${editor.hass}
                             .data=${{ [i + '_name']: editor._config[i + '_name'] || '' }}
@@ -217,6 +219,7 @@ function removeButton(editor, index) {
     delete editor._config[index + '_name'];
     delete editor._config[index + '_icon'];
     delete editor._config[index + '_link'];
+    delete editor._config[index + '_button_action'];
     delete editor._config[index + '_entity'];
     delete editor._config[index + '_pir_sensor'];
 
@@ -225,6 +228,7 @@ function removeButton(editor, index) {
         editor._config[i + '_name'] = editor._config[(i + 1) + '_name'];
         editor._config[i + '_icon'] = editor._config[(i + 1) + '_icon'];
         editor._config[i + '_link'] = editor._config[(i + 1) + '_link'];
+        editor._config[i + '_button_action'] = editor._config[(i + 1) + '_button_action'];
         editor._config[i + '_entity'] = editor._config[(i + 1) + '_entity'];
         editor._config[i + '_pir_sensor'] = editor._config[(i + 1) + '_pir_sensor'];
     }
@@ -233,6 +237,7 @@ function removeButton(editor, index) {
     delete editor._config[editor.buttonIndex + '_name'];
     delete editor._config[editor.buttonIndex + '_icon'];
     delete editor._config[editor.buttonIndex + '_link'];
+    delete editor._config[editor.buttonIndex + '_button_action'];
     delete editor._config[editor.buttonIndex + '_entity'];
     delete editor._config[editor.buttonIndex + '_pir_sensor'];
 

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, jest, test } from '@jest/globals';
 
-const { getStoredButtonWidth, storeButtonWidth } = await import('./button-width-storage.js');
+const { getButtonWidthStorageKey, getStoredButtonWidth, storeButtonWidth } = await import('./button-width-storage.js');
 
 const originalLocalStorage = global.localStorage;
 
@@ -38,6 +38,17 @@ describe('getStoredButtonWidth', () => {
 
         expect(() => getStoredButtonWidth('#kitchen')).not.toThrow();
         expect(getStoredButtonWidth('#kitchen')).toBeNull();
+    });
+});
+
+describe('getButtonWidthStorageKey', () => {
+    test('keeps links as the compatibility key', () => {
+        expect(getButtonWidthStorageKey('#kitchen', 1)).toBe('#kitchen');
+    });
+
+    test('gives action-only buttons a stable numbered key', () => {
+        expect(getButtonWidthStorageKey(undefined, 3)).toBe('button-3');
+        expect(getButtonWidthStorageKey('', 3)).toBe('button-3');
     });
 });
 

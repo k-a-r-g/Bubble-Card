@@ -292,15 +292,38 @@ export function addActions(element, config, defaultEntity, defaultActions = {}) 
   element.dataset.doubleTapAction = JSON.stringify(doubleTapAction);
   element.dataset.holdAction = JSON.stringify(holdAction);
 
+  // A card can update its actions without replacing the DOM node. Make the
+  // next press read the new data attributes instead of reusing the handler
+  // that captured the previous configuration.
+  actionHandler.delete(element);
+
   const hasAction = tapAction.action !== "none" || doubleTapAction.action !== "none" || holdAction.action !== "none";
   if (hasAction) {
     element.classList.add('bubble-action-enabled');
-    element.haRipple = createElement('ha-ripple');
-    element.appendChild(element.haRipple);
+    if (!element.haRipple) {
+      element.haRipple = createElement('ha-ripple');
+      element.appendChild(element.haRipple);
+    }
+  } else {
+    element.classList.remove('bubble-action-enabled');
   }
 
   // Return the final actions applied
   return { tap_action: tapAction, double_tap_action: doubleTapAction, hold_action: holdAction, has_action: hasAction };
+}
+
+export function removeActions(element) {
+  const handler = actionHandler.get(element);
+  handler?.handleCancel();
+  handler?.releaseListeners?.();
+  handler?.cleanup();
+  actionHandler.delete(element);
+
+  element.classList.remove('bubble-action', 'bubble-action-enabled');
+  delete element.dataset.entity;
+  delete element.dataset.tapAction;
+  delete element.dataset.doubleTapAction;
+  delete element.dataset.holdAction;
 }
 
 class ActionHandler {

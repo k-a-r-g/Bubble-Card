@@ -2,8 +2,10 @@ import { createElement, forwardHaptic, navigate } from "../../tools/utils.js";
 import { isHaCardWrapper } from '../../tools/ha-boundary.js';
 import { startContentInsetSync } from '../../tools/content-inset.js';
 import { addHash, removeHash } from "../pop-up/helpers.js";
-import { getStoredButtonWidth } from './button-width-storage.js';
+import { getButtonWidthStorageKey, getStoredButtonWidth } from './button-width-storage.js';
+import { getConfiguredButtonIndexes } from './config.js';
 import { resolveTemplate } from "../../tools/render-template.js";
+import { addActions } from "../../tools/tap-actions.js";
 import styles from "./styles.css";
 
 let isOpen = false;
@@ -19,6 +21,7 @@ export function createButton(context, index) {
     const sensor = context.config[`${index}_pir_sensor`];
     const link = context.config[`${index}_link`];
     const entity = context.config[`${index}_entity`];
+    const buttonAction = context.config[`${index}_button_action`];
     isOpen = isOpen || location.hash === link;
 
     const iconElement = createElement('ha-icon', 'bubble-icon icon');
@@ -27,8 +30,10 @@ export function createButton(context, index) {
     nameElement.innerText = name;
     const backgroundColorElement = createElement('div', 'bubble-background-color background-color');
     const backgroundElement = createElement('div', 'bubble-background background');
-    const button = createElement('div', `bubble-button bubble-button-${index} button ${link.substring(1)}`);
-    let buttonWidth = getStoredButtonWidth(link);
+    const linkClass = typeof link === 'string' && link ? link.substring(1) : `action-${index}`;
+    const button = createElement('div', `bubble-button bubble-button-${index} button ${linkClass}`);
+    const storageKey = getButtonWidthStorageKey(link, index);
+    let buttonWidth = getStoredButtonWidth(storageKey);
     button.style.width = `${buttonWidth}px`;
 
     button.appendChild(iconElement);
@@ -36,6 +41,10 @@ export function createButton(context, index) {
     button.appendChild(backgroundColorElement);
     button.appendChild(backgroundElement);
     button.addEventListener('click', () => {
+                if (button.buttonAction !== undefined) {
+                        return;
+                }
+
                 const currentLink = button.link;
                 if (!currentLink) {
                         return;
@@ -68,10 +77,17 @@ export function createButton(context, index) {
     button.pirSensor = sensor;
     button.lightEntity = entity;
     button.link = link;
+    button.buttonAction = buttonAction;
+    button.buttonActionSignature = JSON.stringify({ buttonAction, entity });
+    button.storageKey = storageKey;
     button.index = index;
 
-    button.haRipple = createElement('ha-ripple');
-    button.appendChild(button.haRipple);
+    if (buttonAction !== undefined) {
+        addActions(button, buttonAction, entity);
+    } else {
+        button.haRipple = createElement('ha-ripple');
+        button.appendChild(button.haRipple);
+    }
 
     // createButton owns both sides of adding a button: the entry in
     // context.elements.buttons that placeButtons walks, and the node in the
@@ -89,10 +105,8 @@ export function createStructure(context) {
     context.elements.buttons = [];
     context.elements.cardContainer = createElement('div', 'bubble-horizontal-buttons-stack-card-container horizontal-buttons-stack-container');
 
-    let index = 1;
-    while (context.config[index + '_link']) {
+    for (const index of getConfiguredButtonIndexes(context.config)) {
         createButton(context, index);
-        index++;
     }
 
     context.elements.style = createElement('style');
