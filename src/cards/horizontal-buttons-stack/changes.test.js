@@ -260,7 +260,7 @@ describe('changeConfig adding a button to a live stack', () => {
         changeConfig(context);
 
         expect(addActions).toHaveBeenCalledWith(button, nextAction, undefined);
-        expect(removeActions).not.toHaveBeenCalled();
+        expect(removeActions).toHaveBeenCalledWith(button);
 
         jest.clearAllMocks();
         delete context.config['1_button_action'];

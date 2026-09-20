@@ -118,6 +118,9 @@ export function changeConfig(context) {
 
         if (buttonAction !== undefined) {
             if (button.buttonActionSignature !== buttonActionSignature) {
+                if (hadButtonAction) {
+                    removeActions(button);
+                }
                 addActions(button, buttonAction, entity);
             }
         } else if (hadButtonAction) {

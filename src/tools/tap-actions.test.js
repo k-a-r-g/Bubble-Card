@@ -83,7 +83,7 @@ describe('updating actions on an existing element', () => {
     expect(createElement).toHaveBeenCalledTimes(1);
   });
 
-  test('the next press uses the updated action config', () => {
+  test('the next press uses replacement actions after explicit cleanup', () => {
     const el = makeElement();
     const fired = [];
     el.addEventListener('hass-action', (event) => fired.push(event.detail.config.tap_action.action));
@@ -91,6 +91,7 @@ describe('updating actions on an existing element', () => {
 
     body.dispatchEvent(press('pointerdown', el));
     el.dispatchEvent(press('pointerup', el));
+    removeActions(el);
     addActions(el, { tap_action: { action: 'more-info' } }, 'light.test');
     body.dispatchEvent(press('pointerdown', el));
     el.dispatchEvent(press('pointerup', el));

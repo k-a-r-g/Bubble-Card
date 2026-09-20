@@ -27,6 +27,7 @@ import { handleSeparator } from './cards/separator/index.js';
 import { handleCover } from './cards/cover/index.js';
 import { handleEmptyColumn } from './cards/empty-column/index.js';
 import { handleHorizontalButtonsStack } from './cards/horizontal-buttons-stack/index.js';
+import { hasButtonConfig } from './cards/horizontal-buttons-stack/config.js';
 import { releaseButtonHighlightListener } from './cards/horizontal-buttons-stack/highlight.js';
 import { runModuleTeardowns } from './tools/module-teardown.js';
 import { handleCalendar } from './cards/calendar/index.js';
@@ -483,14 +484,17 @@ class BubbleCard extends HTMLElement {
       const definedLinks = {};
       for (const key in workingConfig) {
         if (/^\d+_icon$/.test(key)) {
-          const linkKey = key.replace('_icon', '_link');
-          if (workingConfig[linkKey] === undefined) {
+          const index = Number(key.match(/^(\d+)_icon$/)[1]);
+          const linkKey = `${index}_link`;
+          if (!hasButtonConfig(workingConfig, index)) {
             throw new Error(tGlobal('editor.errors.link_required').replace('{key}', linkKey));
           }
-          if (definedLinks[workingConfig[linkKey]]) {
+          if (workingConfig[linkKey] !== undefined && definedLinks[workingConfig[linkKey]]) {
             throw new Error(tGlobal('editor.errors.duplicate_link').replace('{value}', workingConfig[linkKey]));
           }
-          definedLinks[workingConfig[linkKey]] = true;
+          if (workingConfig[linkKey] !== undefined) {
+            definedLinks[workingConfig[linkKey]] = true;
+          }
         }
       }
     } else if (['button', 'cover', 'climate', 'select', 'media-player'].includes(workingConfig.card_type)) {

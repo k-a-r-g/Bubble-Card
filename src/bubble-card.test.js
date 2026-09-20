@@ -376,6 +376,23 @@ describe('BubbleCard and the template store', () => {
         expect(() => card.setConfig({ card_type: 'button', entity: 'light.a', name: 'Kitchen', sub_button: [{ name: 'Sub' }] })).not.toThrow();
     });
 
+    test('an action-only horizontal button does not require a numbered link', () => {
+        const card = createCard();
+        expect(() => card.setConfig({
+            card_type: 'horizontal-buttons-stack',
+            '1_icon': 'mdi:lightbulb',
+            '1_button_action': { tap_action: { action: 'toggle' } },
+        })).not.toThrow();
+    });
+
+    test('a numbered icon still requires either a link or button actions', () => {
+        const card = createCard();
+        expect(() => card.setConfig({
+            card_type: 'horizontal-buttons-stack',
+            '1_icon': 'mdi:lightbulb',
+        })).toThrow(/1_link/);
+    });
+
     test('a render stamps its templates and sweeps the ones it stopped reading', () => {
         const card = createCard();
         card.isConnected = true;

@@ -292,11 +292,6 @@ export function addActions(element, config, defaultEntity, defaultActions = {}) 
   element.dataset.doubleTapAction = JSON.stringify(doubleTapAction);
   element.dataset.holdAction = JSON.stringify(holdAction);
 
-  // A card can update its actions without replacing the DOM node. Make the
-  // next press read the new data attributes instead of reusing the handler
-  // that captured the previous configuration.
-  actionHandler.delete(element);
-
   const hasAction = tapAction.action !== "none" || doubleTapAction.action !== "none" || holdAction.action !== "none";
   if (hasAction) {
     element.classList.add('bubble-action-enabled');
