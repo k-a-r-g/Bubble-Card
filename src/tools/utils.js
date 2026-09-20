@@ -281,6 +281,16 @@ function resolveSurfaceRgb(expression, context) {
   return hexToRgb(accent) || rgbStringToRgb(accent);
 }
 
+// How light the colour a surface expression paints really is. It goes through
+// the same resolution as getStateSurfaceColor, so a variable a card scopes to
+// itself is read, which resolveCssVariable alone does not do. Unlike
+// isColorLight it takes an expression that may already be a computed colour.
+export function isSurfaceColorLight(expression, context, threshold = 0.5) {
+  const rgb = resolveSurfaceRgb(expression, context);
+  if (!rgb) return false;
+  return calculateLuminance(...rgb) > threshold;
+}
+
 export function getStateSurfaceColor(context, entity = context.config.entity, useLightBackground = true, cardBackgroundColor = null, subButtonColor = null) {
   
   // If light_background is false, force use of accent color instead of RGB light color

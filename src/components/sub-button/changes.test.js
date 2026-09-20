@@ -10,6 +10,8 @@ jest.unstable_mockModule('../../tools/utils.js', () => ({
     formatDateTime: jest.fn(),
     getStateSurfaceColor: jest.fn(),
     getState: jest.fn(),
+    getStyleGeneration: jest.fn(() => 1),
+    isSurfaceColorLight: jest.fn(() => false),
     isTimerEntity: jest.fn(),
     timerTimeRemaining: jest.fn(),
     computeDisplayTimer: jest.fn(),

@@ -317,8 +317,11 @@
     margin: 0;
 }
 
+/* Posed by updateBackground when the state colour behind the text is light
+   enough to swallow it. Softened rather than pure black, which reads harshly
+   next to the rest of the card. */
 .bright-background {
-    color: var(--bubble-sub-button-dark-text-color, rgb(0, 0, 0));
+    color: var(--bubble-sub-button-dark-text-color, rgba(0, 0, 0, 0.65));
 }
 
 .background-on {

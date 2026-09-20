@@ -7,6 +7,8 @@ jest.unstable_mockModule('../../tools/utils.js', () => ({
     formatDateTime: jest.fn(),
     createElement: jest.fn(),
     getStateSurfaceColor: jest.fn(),
+    getStyleGeneration: jest.fn(() => 1),
+    isSurfaceColorLight: jest.fn(() => false),
     getState: jest.fn(),
     isTimerEntity: jest.fn(),
     timerTimeRemaining: jest.fn(),
@@ -32,7 +34,8 @@ jest.unstable_mockModule('../../tools/validate-condition.js', () => ({
     ensureArray: jest.fn(),
 }));
 
-const { revealConditionalSubButtons } = await import('./utils.js');
+const { revealConditionalSubButtons, updateBackground } = await import('./utils.js');
+const { getStateSurfaceColor, getStyleGeneration, isSurfaceColorLight, isStateRequiringAttention } = await import('../../tools/utils.js');
 
 // Minimal element: classList, parent chain and a class-based querySelectorAll
 class StubElement {
@@ -183,5 +186,117 @@ describe('getSubButtonOptions with a Home Assistant template', () => {
         subscriptions[0].callback({ result: '<Wet>' });
         expect(getSubButtonOptions(context, subButton, 1).name).toBe('&lt;Wet&gt;');
         _resetTemplateStore();
+    });
+});
+
+
+// A sub-button element reduced to what updateBackground touches, its classes
+// and the one custom property it writes.
+function makeBackgroundElement() {
+    const classes = new Set();
+    const props = new Map();
+    return {
+        classList: {
+            add: (...names) => names.forEach((n) => classes.add(n)),
+            remove: (...names) => names.forEach((n) => classes.delete(n)),
+            contains: (n) => classes.has(n),
+            toggle: (n, force) => (force ? classes.add(n) : classes.delete(n)),
+        },
+        style: {
+            setProperty: (n, v) => props.set(n, v),
+            getPropertyValue: (n) => props.get(n) ?? '',
+            removeProperty: (n) => props.delete(n),
+        },
+        has: (n) => classes.has(n),
+    };
+}
+
+const backgroundOptions = (overrides = {}) => ({
+    showBackground: true,
+    isOn: true,
+    stateBackground: true,
+    lightBackground: true,
+    entity: 'light.a',
+    state: { state: 'on' },
+    context: { config: { entity: 'light.a', card_type: 'button' }, card: { style: { getPropertyValue: () => '' } } },
+    ...overrides,
+});
+
+describe('updateBackground and the bright-background class (#2450)', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        getStyleGeneration.mockReturnValue(1);
+        isStateRequiringAttention.mockReturnValue(false);
+        getStateSurfaceColor.mockReturnValue('rgb(255, 193, 7)');
+        isSurfaceColorLight.mockReturnValue(false);
+    });
+
+    test('the class lands on a light background', () => {
+        isSurfaceColorLight.mockReturnValue(true);
+        const element = makeBackgroundElement();
+
+        updateBackground(element, backgroundOptions());
+
+        expect(element.has('bright-background')).toBe(true);
+        expect(element.has('background-on')).toBe(true);
+    });
+
+    test('a dark background keeps the light text', () => {
+        const element = makeBackgroundElement();
+
+        updateBackground(element, backgroundOptions());
+
+        expect(element.has('bright-background')).toBe(false);
+    });
+
+    test('the luminance is read at the threshold the palette asks for', () => {
+        updateBackground(makeBackgroundElement(), backgroundOptions());
+
+        expect(isSurfaceColorLight).toHaveBeenCalledWith('rgb(255, 193, 7)', expect.anything(), 0.67);
+    });
+
+    test('an entity that goes off drops the class', () => {
+        isSurfaceColorLight.mockReturnValue(true);
+        const element = makeBackgroundElement();
+        updateBackground(element, backgroundOptions());
+
+        updateBackground(element, backgroundOptions({ isOn: false }));
+
+        expect(element.has('bright-background')).toBe(false);
+        expect(element.has('background-off')).toBe(true);
+    });
+
+    test('turning the background off drops it too', () => {
+        isSurfaceColorLight.mockReturnValue(true);
+        const element = makeBackgroundElement();
+        updateBackground(element, backgroundOptions());
+
+        updateBackground(element, backgroundOptions({ showBackground: false }));
+
+        expect(element.has('bright-background')).toBe(false);
+    });
+
+    test('an unchanged colour is not read again', () => {
+        const element = makeBackgroundElement();
+        updateBackground(element, backgroundOptions());
+        isSurfaceColorLight.mockClear();
+
+        updateBackground(element, backgroundOptions());
+
+        expect(isSurfaceColorLight).not.toHaveBeenCalled();
+    });
+
+    test('but a theme change makes it read again, because the expression paints something else', () => {
+        const element = makeBackgroundElement();
+        getStateSurfaceColor.mockReturnValue('var(--state-light-active-color)');
+        updateBackground(element, backgroundOptions());
+        isSurfaceColorLight.mockClear();
+        isSurfaceColorLight.mockReturnValue(true);
+
+        getStyleGeneration.mockReturnValue(2);
+        updateBackground(element, backgroundOptions());
+
+        expect(isSurfaceColorLight).toHaveBeenCalledTimes(1);
+        expect(element.has('bright-background')).toBe(true);
     });
 });
