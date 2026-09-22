@@ -169,6 +169,44 @@ describe('toggleBodyScroll', () => {
         expect(document.body.classList.contains('bubble-body-scroll-locked')).toBe(false);
     });
 
+    test('keeps the place of a scrollbar that was there', () => {
+        window.innerWidth = 1280;
+        document.documentElement.clientWidth = 1265;
+
+        utilsModule.toggleBodyScroll(true);
+
+        const styles = document.getElementById('bubble-card-no-scroll-styles');
+
+        expect(document.documentElement.classList.contains('bubble-scroll-lock-gutter')).toBe(true);
+        expect(styles.textContent).toContain('html.bubble-body-scroll-locked.bubble-scroll-lock-gutter {');
+        expect(document.documentElement.style['--bubble-scroll-lock-size']).toBe('15px');
+    });
+
+    test('reserves nothing on a page that has no scrollbar (#2629)', () => {
+        // A page too short to scroll has no scrollbar to replace, and a gutter
+        // reserved anyway pushed the whole dashboard aside by its width.
+        window.innerWidth = 1280;
+        document.documentElement.clientWidth = 1280;
+
+        utilsModule.toggleBodyScroll(true);
+
+        const styles = document.getElementById('bubble-card-no-scroll-styles');
+
+        expect(document.documentElement.classList.contains('bubble-scroll-lock-gutter')).toBe(false);
+        expect(styles.textContent).not.toMatch(/html\.bubble-body-scroll-locked\s*\{[^}]*scrollbar-gutter/);
+    });
+
+    test('drops the kept gutter with the lock', () => {
+        window.innerWidth = 1280;
+        document.documentElement.clientWidth = 1265;
+
+        utilsModule.toggleBodyScroll(true);
+        utilsModule.toggleBodyScroll(false);
+
+        expect(document.documentElement.classList.contains('bubble-scroll-lock-gutter')).toBe(false);
+        expect(document.documentElement.style['--bubble-scroll-lock-size']).toBeUndefined();
+    });
+
     test('never reaches for a listener or a preventDefault on the page', () => {
         // An earlier attempt did, and the cards inside a pop-up stopped
         // scrolling with it. The lock is CSS and nothing else.

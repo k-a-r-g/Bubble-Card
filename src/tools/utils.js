@@ -1155,6 +1155,7 @@ const scrollLockLayerClass = 'bubble-scroll-lock-layer';
 const scrollLockLayerActiveClass = 'is-active';
 const scrollLockStyleId = 'bubble-card-no-scroll-styles';
 const scrollLockGutterProperty = '--bubble-scroll-lock-size';
+const scrollLockGutterClass = 'bubble-scroll-lock-gutter';
 // The class on the body only ever marked state: nothing in the project styled
 // it, so the document stayed scrollable the whole time a pop-up was open. The
 // layer below catches what happens outside the pop-up, but a gesture that
@@ -1166,12 +1167,13 @@ const scrollLockGutterProperty = '--bubble-scroll-lock-size';
 // So the class is given the rules it never had, the ones Web Awesome uses to
 // lock the page behind a Home Assistant dialog (scroll-lock.css.js, imported by
 // resources/theme/wa.globals.ts). Overflow on the body and a gutter to keep the
-// layout still, and nothing else: no listener, no touch-action and no
-// preventDefault, which is what lets the cards inside keep scrolling in both
-// axes. An earlier attempt at this went the other way and took those with it.
+// layout still where a scrollbar was, and nothing else, no listener, no
+// touch-action and no preventDefault, which is what lets the cards inside keep
+// scrolling in both axes. An earlier attempt at this went the other way and
+// took those with it.
 const scrollLockCssContent = `
         @supports (scrollbar-gutter: stable) {
-            html.${scrollLockBodyClass} {
+            html.${scrollLockBodyClass}.${scrollLockGutterClass} {
                 scrollbar-gutter: stable !important;
             }
 
@@ -1337,6 +1339,12 @@ export function toggleBodyScroll(disable) {
                 ? Math.max(0, viewportWidth - root.clientWidth)
                 : 0;
             root.style?.setProperty?.(scrollLockGutterProperty, `${gutter}px`);
+            // A gutter only keeps the place of a scrollbar that was there. On a
+            // page too short to scroll, reserving one anyway pushed the whole
+            // dashboard aside by the width of a scrollbar that never existed
+            // (#2629). Home Assistant's own scroll lock has the same condition,
+            // and the 2px margin is Web Awesome's.
+            root.classList?.toggle?.(scrollLockGutterClass, gutter >= 2);
             root.classList?.add(scrollLockBodyClass);
         }
 
@@ -1350,7 +1358,7 @@ export function toggleBodyScroll(disable) {
     }
 
     const root = document.documentElement;
-    root?.classList?.remove(scrollLockBodyClass);
+    root?.classList?.remove(scrollLockBodyClass, scrollLockGutterClass);
     root?.style?.removeProperty?.(scrollLockGutterProperty);
 
     body.classList.remove(scrollLockBodyClass);
