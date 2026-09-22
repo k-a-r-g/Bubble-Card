@@ -1156,6 +1156,8 @@ const scrollLockLayerActiveClass = 'is-active';
 const scrollLockStyleId = 'bubble-card-no-scroll-styles';
 const scrollLockGutterProperty = '--bubble-scroll-lock-size';
 const scrollLockGutterClass = 'bubble-scroll-lock-gutter';
+// Engines that reserve the gutter themselves never read the size.
+const scrollLockSizeIsRead = typeof CSS === 'undefined' || !CSS.supports?.('scrollbar-gutter', 'stable');
 // The class on the body only ever marked state: nothing in the project styled
 // it, so the document stayed scrollable the whole time a pop-up was open. The
 // layer below catches what happens outside the pop-up, but a gesture that
@@ -1338,14 +1340,23 @@ export function toggleBodyScroll(disable) {
             const gutter = typeof viewportWidth === 'number' && typeof root.clientWidth === 'number'
                 ? Math.max(0, viewportWidth - root.clientWidth)
                 : 0;
-            root.style?.setProperty?.(scrollLockGutterProperty, `${gutter}px`);
             // A gutter only keeps the place of a scrollbar that was there. On a
             // page too short to scroll, reserving one anyway pushed the whole
             // dashboard aside by the width of a scrollbar that never existed
             // (#2629). Home Assistant's own scroll lock has the same condition,
             // and the 2px margin is Web Awesome's.
-            root.classList?.toggle?.(scrollLockGutterClass, gutter >= 2);
+            const hasGutter = gutter >= 2;
+            root.classList?.toggle?.(scrollLockGutterClass, hasGutter);
             root.classList?.add(scrollLockBodyClass);
+
+            // Only the fallback for engines without scrollbar-gutter reads the
+            // size, and it reads it on the body. Written inline on <html>, it
+            // changed the declaration count that identifies the theme, so every
+            // open and every close passed for a theme change, and as an
+            // inherited property it restyled the whole page each time.
+            if (hasGutter && scrollLockSizeIsRead) {
+                body.style?.setProperty?.(scrollLockGutterProperty, `${gutter}px`);
+            }
         }
 
         body.classList.add(scrollLockBodyClass);
@@ -1359,7 +1370,7 @@ export function toggleBodyScroll(disable) {
 
     const root = document.documentElement;
     root?.classList?.remove(scrollLockBodyClass, scrollLockGutterClass);
-    root?.style?.removeProperty?.(scrollLockGutterProperty);
+    body.style?.removeProperty?.(scrollLockGutterProperty);
 
     body.classList.remove(scrollLockBodyClass);
     getExistingScrollLockLayer()?.classList.remove(scrollLockLayerActiveClass);

@@ -141,6 +141,7 @@ describe('toggleBodyScroll', () => {
     afterEach(() => {
         delete global.window;
         delete global.document;
+        delete global.CSS;
     });
 
     test('locks the document itself, not only the area around the pop-up', () => {
@@ -158,7 +159,6 @@ describe('toggleBodyScroll', () => {
         expect(styles.textContent).toContain('overflow: hidden !important;');
         // The gutter keeps the layout still when the scrollbar goes.
         expect(styles.textContent).toContain('scrollbar-gutter: stable !important;');
-        expect(document.documentElement.style['--bubble-scroll-lock-size']).toBeDefined();
     });
 
     test('gives the document back when the last pop-up closes', () => {
@@ -179,7 +179,26 @@ describe('toggleBodyScroll', () => {
 
         expect(document.documentElement.classList.contains('bubble-scroll-lock-gutter')).toBe(true);
         expect(styles.textContent).toContain('html.bubble-body-scroll-locked.bubble-scroll-lock-gutter {');
-        expect(document.documentElement.style['--bubble-scroll-lock-size']).toBe('15px');
+        // The fallback without scrollbar-gutter pads the body by the same width,
+        // and reads it there. <html> carries the theme and is left alone.
+        expect(document.body.style['--bubble-scroll-lock-size']).toBe('15px');
+        expect(document.documentElement.style.setProperty).not.toHaveBeenCalled();
+    });
+
+    test('leaves the size out where the engine reserves the gutter itself', async () => {
+        jest.resetModules();
+        global.CSS = { supports: jest.fn((property, value) => property === 'scrollbar-gutter' && value === 'stable') };
+        utilsModule = await import('./utils.js');
+        window.innerWidth = 1280;
+        document.documentElement.clientWidth = 1265;
+
+        utilsModule.toggleBodyScroll(true);
+
+        // Nothing reads it there, and writing an inherited property restyled
+        // the whole page on every open and every close.
+        expect(document.documentElement.classList.contains('bubble-scroll-lock-gutter')).toBe(true);
+        expect(document.body.style.setProperty).not.toHaveBeenCalled();
+        expect(document.documentElement.style.setProperty).not.toHaveBeenCalled();
     });
 
     test('reserves nothing on a page that has no scrollbar (#2629)', () => {
@@ -204,7 +223,7 @@ describe('toggleBodyScroll', () => {
         utilsModule.toggleBodyScroll(false);
 
         expect(document.documentElement.classList.contains('bubble-scroll-lock-gutter')).toBe(false);
-        expect(document.documentElement.style['--bubble-scroll-lock-size']).toBeUndefined();
+        expect(document.body.style['--bubble-scroll-lock-size']).toBeUndefined();
     });
 
     test('never reaches for a listener or a preventDefault on the page', () => {
@@ -270,6 +289,87 @@ describe('toggleBodyScroll', () => {
         expect(document.getElementById('bubble-card-no-scroll-styles')).toBeNull();
         expect(document.getElementById('bubble-card-scroll-lock-layer')).toBeNull();
         expect(document.body.classList.contains('bubble-body-scroll-locked')).toBe(false);
+    });
+});
+
+// Home Assistant applies a theme by writing it inline on <html>, and Bubble Card
+// reads its colors again whenever that attribute moves. This style replays every
+// write to the observers watching it, the way the browser does.
+function createObservedStyle(element, observers) {
+    const properties = new Map();
+    const notify = () => observers
+        .filter(({ target, options }) => target === element && options?.attributeFilter?.includes('style'))
+        .forEach(({ callback }) => callback([{ type: 'attributes', attributeName: 'style', target: element }]));
+
+    return {
+        get length() {
+            return properties.size;
+        },
+        getPropertyValue: (name) => properties.get(name) ?? '',
+        setProperty: jest.fn((name, value) => {
+            properties.set(name, value);
+            notify();
+        }),
+        removeProperty: jest.fn((name) => {
+            if (properties.delete(name)) notify();
+        }),
+    };
+}
+
+describe('toggleBodyScroll and the theme', () => {
+    let utilsModule;
+
+    beforeEach(async () => {
+        jest.resetModules();
+
+        const observers = [];
+        global.MutationObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+            }
+            observe(target, options) {
+                observers.push({ target, options, callback: this.callback });
+            }
+            disconnect() {}
+        };
+        global.window = createMockWindow();
+        global.document = createMockDocument();
+        document.documentElement.style = createObservedStyle(document.documentElement, observers);
+        document.documentElement.style.setProperty('--primary-background-color', '#111');
+        document.documentElement.style.setProperty('--primary-text-color', '#e1e1e1');
+
+        // A page that scrolls, so there is a gutter to keep.
+        window.innerWidth = 1280;
+        document.documentElement.clientWidth = 1265;
+
+        utilsModule = await import('./utils.js');
+    });
+
+    afterEach(() => {
+        delete global.MutationObserver;
+        delete global.window;
+        delete global.document;
+    });
+
+    test('never takes a pop-up opening or closing for a theme change', () => {
+        // Every theme color was read again after each of them, and every
+        // sub-button measured its background once more.
+        const generation = utilsModule.getStyleGeneration();
+
+        utilsModule.toggleBodyScroll(true);
+        expect(utilsModule.getStyleGeneration()).toBe(generation);
+
+        utilsModule.toggleBodyScroll(false);
+        expect(utilsModule.getStyleGeneration()).toBe(generation);
+    });
+
+    test('still notices a theme applied while a pop-up is open', () => {
+        utilsModule.toggleBodyScroll(true);
+        const generation = utilsModule.getStyleGeneration();
+
+        document.documentElement.style.setProperty('--primary-background-color', '#fafafa');
+
+        expect(utilsModule.getStyleGeneration()).toBe(generation + 1);
     });
 });
 
