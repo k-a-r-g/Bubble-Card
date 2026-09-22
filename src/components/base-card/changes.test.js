@@ -476,3 +476,62 @@ describe('a card that just changed speeds the beat back up', () => {
         expect(applyScrollingEffect).toHaveBeenCalled();
     });
 });
+
+// Home Assistant hands out a formatter that returns the raw state until its
+// translations are loaded, then replaces it. Its own cards rewrite on that
+// replacement, which is what the memo of changeState has to do as well.
+describe('a state line written before Home Assistant could format it (#2572)', () => {
+    const stateContext = () => {
+        const context = createRelativeCardContext(90, { show_state: true, show_last_changed: false });
+        context._hass.formatEntityState = (stateObj) => stateObj.state;
+        return context;
+    };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('rewrites the state once the translated formatter arrives', () => {
+        const context = stateContext();
+        changeState(context);
+        expect(displayedText()).toBe('on');
+
+        // Same state object, only the formatter was replaced.
+        context._hass = { ...context._hass, formatEntityState: () => 'On' };
+        changeState(context);
+        expect(displayedText()).toBe('On');
+    });
+
+    test.each(['locale', 'localize', 'formatEntityAttributeName', 'formatEntityAttributeValue'])(
+        'rewrites the line when hass.%s is replaced', (key) => {
+            const context = stateContext();
+            changeState(context);
+            const writes = applyScrollingEffect.mock.calls.length;
+
+            context._hass = { ...context._hass, [key]: { replaced: true } };
+            changeState(context);
+            expect(applyScrollingEffect.mock.calls.length).toBe(writes + 1);
+        });
+
+    test('rewrites the line when the display precision of the entity changes', () => {
+        const context = stateContext();
+        context._hass.entities = { 'sensor.test': { display_precision: 1 } };
+        changeState(context);
+        const writes = applyScrollingEffect.mock.calls.length;
+
+        context._hass = { ...context._hass, entities: { 'sensor.test': { display_precision: 2 } } };
+        changeState(context);
+        expect(applyScrollingEffect.mock.calls.length).toBe(writes + 1);
+    });
+
+    test('keeps the memo when nothing the line is formatted with has moved', () => {
+        const context = stateContext();
+        changeState(context);
+        const writes = applyScrollingEffect.mock.calls.length;
+
+        // A new hass object, as on every tick, carrying the same formatters.
+        context._hass = { ...context._hass };
+        changeState(context);
+        expect(applyScrollingEffect.mock.calls.length).toBe(writes);
+    });
+});
