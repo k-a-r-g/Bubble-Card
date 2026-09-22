@@ -119,6 +119,12 @@ let cachedBodyStyles = null;
 let cachedThemeId = null;
 let styleCacheNeedsThemeCheck = true;
 
+// Home Assistant locks the page scroll by writing inline on <html> as well, Web Awesome's
+// lock for its dialogs and bottom sheets, Home Assistant's own for its popovers. None of
+// it is a theme, so none of it is counted. Should one of these be renamed, an open and a
+// close go back to counting as a theme change, which is what they used to do anyway.
+const scrollLockDeclarations = ['--wa-scroll-lock-size', '--wa-scroll-lock-gutter', 'scrollbar-gutter'];
+
 function getCurrentThemeId() {
     // Home Assistant applies a theme by writing every token inline on <html>, so the
     // number of inline declarations plus the two colors Bubble Card reads identifies
@@ -126,9 +132,13 @@ function getCurrentThemeId() {
     // differ by it, and the default light theme, which writes no token at all, no
     // longer looks like a page whose theme has simply not been applied yet.
     const rootStyle = document.documentElement.style;
+    let count = rootStyle.length;
+    for (const declaration of scrollLockDeclarations) {
+        if (rootStyle.getPropertyValue(declaration)) count--;
+    }
     const bg = rootStyle.getPropertyValue('--primary-background-color').trim();
     const fg = rootStyle.getPropertyValue('--primary-text-color').trim();
-    return rootStyle.length + '|' + bg + '|' + fg;
+    return count + '|' + bg + '|' + fg;
 }
 
 // That same inline write is also the signal that a theme changed at all. Watching

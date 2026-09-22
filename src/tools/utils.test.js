@@ -307,6 +307,12 @@ function createObservedStyle(element, observers) {
         },
         getPropertyValue: (name) => properties.get(name) ?? '',
         setProperty: jest.fn((name, value) => {
+            // An empty value removes the declaration, which is what the browser does
+            // and how a scroll lock leaves out a gutter it has no use for.
+            if (value === '') {
+                if (properties.delete(name)) notify();
+                return;
+            }
             properties.set(name, value);
             notify();
         }),
@@ -316,27 +322,31 @@ function createObservedStyle(element, observers) {
     };
 }
 
+// A document whose root carries a theme and replays its inline writes.
+function installThemedDocument() {
+    const observers = [];
+    global.MutationObserver = class {
+        constructor(callback) {
+            this.callback = callback;
+        }
+        observe(target, options) {
+            observers.push({ target, options, callback: this.callback });
+        }
+        disconnect() {}
+    };
+    global.window = createMockWindow();
+    global.document = createMockDocument();
+    document.documentElement.style = createObservedStyle(document.documentElement, observers);
+    document.documentElement.style.setProperty('--primary-background-color', '#111');
+    document.documentElement.style.setProperty('--primary-text-color', '#e1e1e1');
+}
+
 describe('toggleBodyScroll and the theme', () => {
     let utilsModule;
 
     beforeEach(async () => {
         jest.resetModules();
-
-        const observers = [];
-        global.MutationObserver = class {
-            constructor(callback) {
-                this.callback = callback;
-            }
-            observe(target, options) {
-                observers.push({ target, options, callback: this.callback });
-            }
-            disconnect() {}
-        };
-        global.window = createMockWindow();
-        global.document = createMockDocument();
-        document.documentElement.style = createObservedStyle(document.documentElement, observers);
-        document.documentElement.style.setProperty('--primary-background-color', '#111');
-        document.documentElement.style.setProperty('--primary-text-color', '#e1e1e1');
+        installThemedDocument();
 
         // A page that scrolls, so there is a gutter to keep.
         window.innerWidth = 1280;
@@ -368,6 +378,66 @@ describe('toggleBodyScroll and the theme', () => {
         const generation = utilsModule.getStyleGeneration();
 
         document.documentElement.style.setProperty('--primary-background-color', '#fafafa');
+
+        expect(utilsModule.getStyleGeneration()).toBe(generation + 1);
+    });
+});
+
+// Home Assistant locks the page the same way for its own dialogs, and it writes that
+// lock inline on <html>, right where the theme lives.
+describe('a Home Assistant dialog and the theme', () => {
+    let utilsModule;
+
+    beforeEach(async () => {
+        jest.resetModules();
+        installThemedDocument();
+        utilsModule = await import('./utils.js');
+    });
+
+    afterEach(() => {
+        delete global.MutationObserver;
+        delete global.window;
+        delete global.document;
+    });
+
+    // What a dialog and a bottom sheet write, on a page whose scrollbar takes room
+    // and on one whose scrollbars are drawn over it, as phones and tablets do.
+    test.each([
+        ['a scrollbar that takes room', 'stable', '15px'],
+        ['scrollbars drawn over the page', '', '0px'],
+    ])('never takes a dialog opening or closing for a theme change, with %s', (_page, gutter, size) => {
+        const rootStyle = document.documentElement.style;
+        const generation = utilsModule.getStyleGeneration();
+
+        rootStyle.setProperty('--wa-scroll-lock-gutter', gutter);
+        rootStyle.setProperty('--wa-scroll-lock-size', size);
+        expect(utilsModule.getStyleGeneration()).toBe(generation);
+
+        // Closing takes the size back and leaves the gutter behind for good.
+        rootStyle.removeProperty('--wa-scroll-lock-size');
+        expect(utilsModule.getStyleGeneration()).toBe(generation);
+    });
+
+    test('never takes a popover opening or closing for a theme change', () => {
+        // Home Assistant's own lock, the one its popovers use, keeps the place of the
+        // scrollbar on the root itself.
+        const rootStyle = document.documentElement.style;
+        const generation = utilsModule.getStyleGeneration();
+
+        rootStyle.setProperty('scrollbar-gutter', 'stable');
+        expect(utilsModule.getStyleGeneration()).toBe(generation);
+
+        rootStyle.removeProperty('scrollbar-gutter');
+        expect(utilsModule.getStyleGeneration()).toBe(generation);
+    });
+
+    test('still notices a theme applied while a dialog is open', () => {
+        const rootStyle = document.documentElement.style;
+        rootStyle.setProperty('--wa-scroll-lock-gutter', 'stable');
+        rootStyle.setProperty('--wa-scroll-lock-size', '15px');
+        const generation = utilsModule.getStyleGeneration();
+
+        rootStyle.setProperty('--card-background-color', '#1c1c1c');
 
         expect(utilsModule.getStyleGeneration()).toBe(generation + 1);
     });
