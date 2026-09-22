@@ -5,7 +5,7 @@ import {
   forwardHaptic,
   throttle
 } from '../../tools/utils.js';
-import { onSliderChange, updateEntity } from './changes.js';
+import { onSliderChange, updateEntity, updateSlider } from './changes.js';
 import { defaultOptions } from './index.js';
 import styles from './styles.css';
 import {
@@ -685,6 +685,12 @@ export function createSliderStructure(context, config = {}) {
       if (context) {
         context.dragging = false;
         window.isScrolling = false;
+        // Every state that landed while the finger was still down was ignored,
+        // and the entity can already be back where it started, which is what an
+        // automation that resets a value does (#2493). updateSlider moves the
+        // fill only on a state object it has not seen, so a slide waiting for
+        // its answer is left alone.
+        updateSlider(context);
       }
     }, 100);
   }
