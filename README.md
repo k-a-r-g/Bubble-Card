@@ -288,7 +288,7 @@ This card is a good companion to the pop-up card, allowing you to open the corre
 | `1_button_action` | object | Optional* | `tap_action`, `double_tap_action` or `hold_action`, see [actions](#tap-double-tap-and-hold-actions) | Configure full Home Assistant-style actions for this button |
 | `1_name` | string | Optional | Any string | A name for your button |
 | `1_icon` | string | Optional | Any `mdi:` icon | An icon for your button |
-| `1_entity` | string | Optional | Any light or light group | Display the color of that light in background |
+| `1_entity` | string | Optional | Any entity (typically a light or light group) | Provide the button's display state/color and the default entity for actions that do not specify their own target |
 | `1_pir_sensor` | string | Optional | Any binary sensor | At least one pir sensor or more for `auto_order`, in fact it also works with any entity type, for example you can add light groups and the order will change based on the last changed states. |
 | `auto_order` | boolean | Optional | `true` or `false` (default) | Change the order of the buttons according to the `_pir_sensor` last changed time, **it needs to be `false` if you don't have any `_pir_sensor` in your code** |
 | `margin` | string | Optional | Any CSS value | Use this **only** if your `horizontal-buttons-stack` is not well centered on mobile (e.g. `13px`) |
@@ -314,6 +314,24 @@ This card is a good companion to the pop-up card, allowing you to open the corre
 | `--bubble-horizontal-buttons-stack-background-color` | `color` | Background color for horizontal button stack buttons |
 
 </details>
+
+#### Per-button actions
+
+Every numbered button can use the same Home Assistant-style tap, double-tap and hold actions as the other Bubble Card buttons. Replace `1` with the button number (`2_button_action`, `3_button_action`, and so on).
+
+| Configuration | Button behavior |
+| --- | --- |
+| `N_link` only | Keeps the original horizontal-stack behavior and opens that pop-up, dashboard path or URL on tap |
+| `N_button_action` only | Creates an action-only button; no placeholder `N_link` is needed |
+| Both | Uses `N_button_action`; `N_link` becomes active again if the complete `N_button_action` block is removed |
+| Neither | Does not create that numbered button |
+
+`N_button_action` can contain any combination of `tap_action`, `double_tap_action` and `hold_action`. An omitted gesture defaults to `none`. See [tap, double tap and hold actions](#tap-double-tap-and-hold-actions) for the available actions and their options.
+
+`N_entity` remains independent from the action configuration: it controls the button's state/color display and is used as the default action entity when an action has no explicit target. An entity or target inside an action does not replace `N_entity` for display purposes.
+
+> [!NOTE]
+> Configuring `double_tap_action` delays a normal tap by 200 ms so that Bubble Card can distinguish a single tap from a double tap. Set it to `none` or omit it when that delay is not wanted.
 
 
 #### Example
@@ -349,7 +367,7 @@ auto_order: true
 
 <details>
 
-<summary><b>Action-only button example</b></summary>
+<summary><b>Full per-button action example (without a link)</b></summary>
 
 <br>
 
@@ -371,7 +389,7 @@ card_type: horizontal-buttons-stack
       area_id: kitchen
 ```
 
-`1_entity` continues to control the button's state/color display. It is independent from the entities or targets used by `1_button_action`.
+This button is discovered and created from `1_button_action`, so `1_link` is not required. `1_entity` supplies the state/color display and is the default entity used by the `toggle` and `more-info` actions. The explicit `area_id` target used by the double-tap action does not change that display entity.
 
 </details>
 
