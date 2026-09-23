@@ -123,6 +123,32 @@ describe('deciding on what the card declares', () => {
         expect(shouldSkipRender(card)).toBe(false);
     });
 
+    test('follows the numbered display and PIR entities of a horizontal stack', async () => {
+        const { shouldSkipRender, collectDeclaredEntities } = await load();
+        const config = {
+            card_type: 'horizontal-buttons-stack',
+            '1_entity': 'light.kitchen',
+            '1_pir_sensor': 'binary_sensor.kitchen_motion',
+            '1_button_action': { tap_action: { action: 'toggle' } },
+        };
+        expect(collectDeclaredEntities(config).sort()).toEqual([
+            'binary_sensor.kitchen_motion',
+            'light.kitchen',
+        ]);
+
+        const motion = state('off');
+        const card = await primed(config, makeHass({
+            'light.kitchen': state('off'),
+            'binary_sensor.kitchen_motion': motion,
+        }));
+        card._hass = makeHass({
+            'light.kitchen': state('on'),
+            'binary_sensor.kitchen_motion': motion,
+        });
+
+        expect(shouldSkipRender(card)).toBe(false);
+    });
+
     test('renders when the theme changes, even with every entity untouched', async () => {
         const { shouldSkipRender } = await load();
         const on = state('on');

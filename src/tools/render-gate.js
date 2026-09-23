@@ -96,6 +96,14 @@ export function collectDeclaredEntities(config) {
     };
     if (config) {
         push(config.entity);
+        // Horizontal stack buttons keep their display and ordering entities in
+        // numbered flat keys rather than nested objects. These reads happen in
+        // the card runtime, outside the tracked template proxy, so they must be
+        // declared here or the gate can suppress their state update until its
+        // bounded safety refresh.
+        for (const key in config) {
+            if (/^\d+_(?:entity|pir_sensor)$/.test(key)) push(config[key]);
+        }
         walk(config.sub_button, 0);
     }
     return out;
