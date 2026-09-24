@@ -9,6 +9,7 @@
       "styling_options": "Tùy chọn giao diện",
       "styling_layout_options": "Tùy chọn giao diện và bố cục",
       "hidden": "Ẩn",
+      "disabled": "Đã tắt",
       "move_up": "Di chuyển lên",
       "move_down": "Di chuyển xuống",
       "no_fields": "Chưa có trường nào được định nghĩa"
@@ -277,6 +278,8 @@
       "settings": "Cài đặt pop-up",
       "auto_close": "Tự đóng sau số mili giây (ví dụ 15000)",
       "close_outside": "Đóng pop-up khi nhấp bên ngoài nó (cần tải lại trang)",
+      "slide_to_close": "Vuốt để đóng",
+      "slide_to_close_header": "Chỉ từ tiêu đề",
       "close_on_click": "Đóng pop-up sau bất kỳ lần nhấp hoặc chạm nào",
       "background_update": "Cập nhật thẻ trong nền (không khuyến nghị)",
       "background_update_title": "Cập nhật trong nền",

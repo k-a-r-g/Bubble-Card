@@ -9,6 +9,7 @@
       "styling_options": "Opcions d'estil",
       "styling_layout_options": "Opcions d'estil i disposició",
       "hidden": "Ocult",
+      "disabled": "Desactivat",
       "move_up": "Mou amunt",
       "move_down": "Mou avall",
       "no_fields": "No s'ha definit cap camp"
@@ -277,6 +278,8 @@
       "settings": "Configuració del pop-up",
       "auto_close": "Tancament automàtic en mil·lisegons (p. ex. 15000)",
       "close_outside": "Tanca el pop-up fent clic fora d'ell (cal actualitzar la pàgina)",
+      "slide_to_close": "Lliscar per tancar",
+      "slide_to_close_header": "Només des de la capçalera",
       "close_on_click": "Tanca el pop-up després de qualsevol clic o toc",
       "background_update": "Actualitza les targetes en segon pla (no recomanat)",
       "background_update_title": "Actualitzacions en segon pla",

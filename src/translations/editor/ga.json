@@ -9,6 +9,7 @@
       "styling_options": "Roghanna stíle",
       "styling_layout_options": "Roghanna stíle agus leagain amach",
       "hidden": "Folaithe",
+      "disabled": "Díchumasaithe",
       "move_up": "Bog suas",
       "move_down": "Bog síos",
       "no_fields": "Níl aon réimsí sainithe"
@@ -277,6 +278,8 @@
       "settings": "Socruithe na preabfhuinneoige",
       "auto_close": "Dúnadh uathoibríoch i milleasoicindí (m.sh. 15000)",
       "close_outside": "Dún an phreabfhuinneog trí chliceáil lasmuigh di (tá athnuachan de dhíth)",
+      "slide_to_close": "Sleamhnaigh chun dúnadh",
+      "slide_to_close_header": "Ón gceanntásc amháin",
       "close_on_click": "Dún an phreabfhuinneog tar éis aon chliceáil nó tapáil",
       "background_update": "Nuashonraigh cártaí sa chúlra (ní mholtar é)",
       "background_update_title": "Nuashonruithe cúlra",

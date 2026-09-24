@@ -9,6 +9,7 @@
       "styling_options": "스타일 옵션",
       "styling_layout_options": "스타일 및 레이아웃 옵션",
       "hidden": "숨김",
+      "disabled": "사용 안 함",
       "move_up": "위로 이동",
       "move_down": "아래로 이동",
       "no_fields": "정의된 필드가 없어요"
@@ -277,6 +278,8 @@
       "settings": "팝업 설정",
       "auto_close": "자동 닫기 시간(밀리초) (예: 15000)",
       "close_outside": "팝업 바깥을 클릭하면 닫기 (새로고침 필요)",
+      "slide_to_close": "슬라이드하여 닫기",
+      "slide_to_close_header": "헤더에서만",
       "close_on_click": "클릭이나 탭 후 팝업 닫기",
       "background_update": "백그라운드에서 카드 업데이트 (권장하지 않음)",
       "background_update_title": "백그라운드 업데이트",

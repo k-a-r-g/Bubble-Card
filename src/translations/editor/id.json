@@ -9,6 +9,7 @@
       "styling_options": "Opsi gaya",
       "styling_layout_options": "Opsi gaya dan tata letak",
       "hidden": "Tersembunyi",
+      "disabled": "Nonaktif",
       "move_up": "Pindah ke atas",
       "move_down": "Pindah ke bawah",
       "no_fields": "Belum ada bidang yang ditentukan"
@@ -277,6 +278,8 @@
       "settings": "Pengaturan pop-up",
       "auto_close": "Tutup otomatis dalam milidetik (mis. 15000)",
       "close_outside": "Tutup pop-up dengan mengklik di luarnya (perlu muat ulang)",
+      "slide_to_close": "Geser untuk menutup",
+      "slide_to_close_header": "Hanya dari header",
       "close_on_click": "Tutup pop-up setelah klik atau ketukan apa pun",
       "background_update": "Perbarui kartu di latar belakang (tidak disarankan)",
       "background_update_title": "Pembaruan latar belakang",

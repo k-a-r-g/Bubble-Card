@@ -9,6 +9,7 @@
       "styling_options": "Stilaj opcioj",
       "styling_layout_options": "Stilaj kaj aranĝaj opcioj",
       "hidden": "Kaŝita",
+      "disabled": "Malŝaltita",
       "move_up": "Movi supren",
       "move_down": "Movi malsupren",
       "no_fields": "Neniu kampo difinita"
@@ -277,6 +278,8 @@
       "settings": "Agordoj de la ŝprucfenestro",
       "auto_close": "Aŭtomata fermo en milisekundoj (ekz. 15000)",
       "close_outside": "Fermi la ŝprucfenestron per alklako ekster ĝi (necesas reŝargo)",
+      "slide_to_close": "Ŝovi por fermi",
+      "slide_to_close_header": "Nur de la kapo",
       "close_on_click": "Fermi la ŝprucfenestron post ajna alklako aŭ tuŝeto",
       "background_update": "Ĝisdatigi la kartojn fone (ne rekomendinda)",
       "background_update_title": "Fonaj ĝisdatigoj",

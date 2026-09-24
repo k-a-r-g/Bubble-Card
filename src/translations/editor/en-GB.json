@@ -9,6 +9,7 @@
       "styling_options": "Styling options",
       "styling_layout_options": "Styling and layout options",
       "hidden": "Hidden",
+      "disabled": "Disabled",
       "move_up": "Move up",
       "move_down": "Move down",
       "no_fields": "No fields defined"
@@ -277,6 +278,8 @@
       "settings": "Pop-up settings",
       "auto_close": "Auto close in milliseconds (e.g. 15000)",
       "close_outside": "Close the pop-up by clicking outside of it (a refresh is needed)",
+      "slide_to_close": "Slide to close",
+      "slide_to_close_header": "From header only",
       "close_on_click": "Close the pop-up after any click or tap",
       "background_update": "Update cards in background (not recommended)",
       "background_update_title": "Background updates",

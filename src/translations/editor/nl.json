@@ -9,6 +9,7 @@
       "styling_options": "Stijlopties",
       "styling_layout_options": "Stijl- en lay-outopties",
       "hidden": "Verborgen",
+      "disabled": "Uitgeschakeld",
       "move_up": "Omhoog verplaatsen",
       "move_down": "Omlaag verplaatsen",
       "no_fields": "Geen velden gedefinieerd"
@@ -277,6 +278,8 @@
       "settings": "Pop-upinstellingen",
       "auto_close": "Automatisch sluiten in milliseconden (bijv. 15000)",
       "close_outside": "Pop-up sluiten door erbuiten te klikken (vernieuwen vereist)",
+      "slide_to_close": "Vegen om te sluiten",
+      "slide_to_close_header": "Alleen vanaf de koptekst",
       "close_on_click": "Pop-up sluiten na elke klik of tik",
       "background_update": "Kaarten op de achtergrond bijwerken (niet aanbevolen)",
       "background_update_title": "Achtergrondupdates",

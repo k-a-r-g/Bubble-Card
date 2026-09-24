@@ -9,6 +9,7 @@
       "styling_options": "Stylopsies",
       "styling_layout_options": "Styl- en uitlegopsies",
       "hidden": "Versteek",
+      "disabled": "Gedeaktiveer",
       "move_up": "Skuif op",
       "move_down": "Skuif af",
       "no_fields": "Geen velde gedefinieer nie"
@@ -277,6 +278,8 @@
       "settings": "Opspringerinstellings",
       "auto_close": "Maak outomaties toe in millisekondes (bv. 15000)",
       "close_outside": "Maak die opspringer toe deur daarbuite te klik ('n verversing is nodig)",
+      "slide_to_close": "Vee om toe te maak",
+      "slide_to_close_header": "Slegs vanaf die opskrif",
       "close_on_click": "Maak die opspringer toe na enige klik of tik",
       "background_update": "Werk kaarte in die agtergrond by (nie aanbeveel nie)",
       "background_update_title": "Agtergrondbywerkings",

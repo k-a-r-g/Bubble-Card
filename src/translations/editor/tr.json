@@ -9,6 +9,7 @@
       "styling_options": "Stil seçenekleri",
       "styling_layout_options": "Stil ve düzen seçenekleri",
       "hidden": "Gizli",
+      "disabled": "Devre dışı",
       "move_up": "Yukarı taşı",
       "move_down": "Aşağı taşı",
       "no_fields": "Tanımlı alan yok"
@@ -277,6 +278,8 @@
       "settings": "Pop-up ayarları",
       "auto_close": "Milisaniye cinsinden otomatik kapatma (örn. 15000)",
       "close_outside": "Pop-up'ı dışına tıklayarak kapat (yenileme gerekir)",
+      "slide_to_close": "Kapatmak için kaydır",
+      "slide_to_close_header": "Yalnızca başlıktan",
       "close_on_click": "Herhangi bir tıklama veya dokunmadan sonra pop-up'ı kapat",
       "background_update": "Kartları arka planda güncelle (önerilmez)",
       "background_update_title": "Arka plan güncellemeleri",

@@ -9,6 +9,7 @@
       "styling_options": "样式选项",
       "styling_layout_options": "样式和布局选项",
       "hidden": "隐藏",
+      "disabled": "已禁用",
       "move_up": "上移",
       "move_down": "下移",
       "no_fields": "未定义任何字段"
@@ -277,6 +278,8 @@
       "settings": "弹窗设置",
       "auto_close": "自动关闭毫秒数 (例如 15000)",
       "close_outside": "点击弹窗外部关闭 (需要刷新)",
+      "slide_to_close": "滑动关闭",
+      "slide_to_close_header": "仅从头部",
       "close_on_click": "任意点击后关闭弹窗",
       "background_update": "在后台更新卡片 (不推荐)",
       "background_update_title": "后台更新",

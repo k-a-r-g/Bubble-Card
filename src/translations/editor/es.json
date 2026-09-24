@@ -9,6 +9,7 @@
       "styling_options": "Opciones de estilo",
       "styling_layout_options": "Opciones de estilo y diseño",
       "hidden": "Oculto",
+      "disabled": "Desactivado",
       "move_up": "Mover hacia arriba",
       "move_down": "Mover hacia abajo",
       "no_fields": "No hay campos definidos"
@@ -277,6 +278,8 @@
       "settings": "Ajustes del pop-up",
       "auto_close": "Cierre automático en milisegundos (p. ej. 15000)",
       "close_outside": "Cerrar el pop-up al hacer clic fuera de él (se necesita actualizar la página)",
+      "slide_to_close": "Deslizar para cerrar",
+      "slide_to_close_header": "Solo desde la cabecera",
       "close_on_click": "Cerrar el pop-up tras cualquier clic o pulsación",
       "background_update": "Actualizar las tarjetas en segundo plano (no recomendado)",
       "background_update_title": "Actualizaciones en segundo plano",

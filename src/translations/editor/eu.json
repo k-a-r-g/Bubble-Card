@@ -9,6 +9,7 @@
       "styling_options": "Estilo-aukerak",
       "styling_layout_options": "Estilo- eta diseinu-aukerak",
       "hidden": "Ezkutatuta",
+      "disabled": "Desgaituta",
       "move_up": "Eraman gora",
       "move_down": "Eraman behera",
       "no_fields": "Ez da eremurik definitu"
@@ -277,6 +278,8 @@
       "settings": "Laster-leihoaren ezarpenak",
       "auto_close": "Itxiera automatikoa milisegundotan (adib. 15000)",
       "close_outside": "Itxi laster-leihoa kanpoan sakatuz (freskatzea behar da)",
+      "slide_to_close": "Irristatu ixteko",
+      "slide_to_close_header": "Goiburutik soilik",
       "close_on_click": "Itxi laster-leihoa edozein klik edo sakatzeren ondoren",
       "background_update": "Eguneratu txartelak atzeko planoan (ez da gomendagarria)",
       "background_update_title": "Atzeko planoko eguneratzeak",
