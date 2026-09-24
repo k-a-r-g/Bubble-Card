@@ -65,15 +65,20 @@
     pointer-events: none;
 }
 
-.bubble-sub-button-bottom-container .bubble-sub-button-group > * {
+/* The pointer comes back with no weight at all, so a module that moves its own
+   element into a group keeps what its own rule says. sub_button_wheel adds an
+   invisible layer the size of the screen and sets its pointer-events to none
+   while the wheel is closed. Weighing two classes, this rule won and the layer
+   covered the buttons of the card editor dialog (#2631). */
+:where(.bubble-sub-button-bottom-container .bubble-sub-button-group > *) {
     pointer-events: auto;
 }
 
 /* ...but never something already taken out of hit testing. A collapsed slider
    overlay keeps its full width so it can slide in, and .is-hidden is what stops
-   it catching the pointer. The rule right above re-enables the pointer with a
-   higher specificity than .is-hidden, which put that invisible overlay back in
-   front of the buttons it spans. Restore it, wrapper and inner container alike. */
+   it catching the pointer. The rule right above used to outweigh .is-hidden,
+   which put that invisible overlay back in front of the buttons it spans. This
+   keeps it out, wrapper and inner container alike, whatever that rule weighs. */
 .bubble-sub-button-bottom-container .bubble-sub-button-group > .is-hidden,
 .bubble-sub-button-bottom-container .is-hidden .bubble-sub-button-slider {
     pointer-events: none;

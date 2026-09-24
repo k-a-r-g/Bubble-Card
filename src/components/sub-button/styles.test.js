@@ -26,8 +26,18 @@ describe('bottom sub-button container hit testing', () => {
   test('lets clicks through a group and catches them on its buttons instead', () => {
     expect(getRule('.bubble-sub-button-bottom-container .bubble-sub-button-group'))
       .toContain('pointer-events: none');
-    expect(getRule('.bubble-sub-button-bottom-container .bubble-sub-button-group > *'))
+    expect(getRule(':where(.bubble-sub-button-bottom-container .bubble-sub-button-group > *)'))
       .toContain('pointer-events: auto');
+  });
+
+  // A module that moves its own element into a group keeps what its own rule
+  // says. sub_button_wheel adds an invisible layer the size of the screen and
+  // sets its pointer-events to none while the wheel is closed. A rule weighing
+  // two classes turned that layer back on, over the buttons of the card editor
+  // dialog (#2631).
+  test('gives the pointer back to a group child without outweighing a module rule', () => {
+    expect(styles).not.toMatch(/(^|\n)\.bubble-sub-button-bottom-container \.bubble-sub-button-group > \*\s*\{/);
+    expect(styles).toMatch(/(^|\n):where\(\.bubble-sub-button-bottom-container \.bubble-sub-button-group > \*\)\s*\{/);
   });
 
   // A spacer only reserves width. Leaving it clickable made it absorb the
