@@ -216,7 +216,7 @@ jest.unstable_mockModule('./styles.css', () => ({
     default: '',
 }));
 
-const { addHash, BUBBLE_URL_EVENT, cleanupPopupRuntime, closePopup, getPopupStyle, hasClassicHeader, isDialogNode, isPopupOpenSequenceActive, keepPopupHostMounted, updateListeners, navigateToPreviousPopup, openPopup, registerPopupContext, removeHash, restorePopupHostLayout, shouldHoldDashboardHassUpdate, suspendPopupHostLayout, syncDeferredPopupHostLayout, syncPopupStyleClasses } = await import('./helpers.js');
+const { addHash, BUBBLE_URL_EVENT, cleanupPopupRuntime, closePopup, getPopupStyle, hasClassicHeader, isDialogNode, isPopupOpenSequenceActive, keepPopupHostMounted, updateListeners, navigateToPreviousPopup, openPopup, registerPopupContext, removeHash, restorePopupHostLayout, shouldHoldDashboardHassUpdate, suspendPopupHostLayout, syncDeferredPopupHostLayout, syncPopupOpenStateWithLocation, syncPopupStyleClasses } = await import('./helpers.js');
 const { invalidateWakeSyncCache } = await import('./index.js');
 const { deferCardUpdate } = await import('../../tools/deferred-card-updates.js');
 
@@ -4279,5 +4279,150 @@ describe('what Bubble Card announces to Home Assistant', () => {
         expect(window.history.pushState).not.toHaveBeenCalled();
         expect(window.history.replaceState).not.toHaveBeenCalled();
         expect(seen).toEqual([BUBBLE_URL_EVENT]);
+    });
+});
+
+// #2589, a third-party card (uix-forge) makes Home Assistant rebuild the view
+// on a back navigation. The rebuild moves the pop-up card in the DOM, which
+// tears it down and re-attaches it, and the teardown drops the context from the
+// active pop-ups while its shell still carries `is-popup-opened`. The URL
+// dispatcher only ever walked the active pop-ups, so nothing was left to tell
+// that shell it was closed. It stayed on screen with 98px of header frozen at
+// the bottom of the viewport for the rest of the session.
+describe('a pop-up shell abandoned by a view rebuild', () => {
+    const usedContexts = [];
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.useFakeTimers();
+
+        window.history.replaceState({}, '', 'http://localhost/lovelace/test');
+        window.__bubbleLocationDeduperAdded = true;
+        window.__bubbleDialogListenerAdded = true;
+
+        rafCallbacks = new Map();
+        nextRafId = 1;
+        global.requestAnimationFrame = jest.fn((callback) => {
+            const id = nextRafId++;
+            rafCallbacks.set(id, callback);
+            return id;
+        });
+        global.cancelAnimationFrame = jest.fn((id) => {
+            rafCallbacks.delete(id);
+        });
+        window.innerWidth = 1280;
+        window.innerHeight = 720;
+    });
+
+    afterEach(() => {
+        usedContexts.forEach((context) => cleanupPopupRuntime(context));
+        usedContexts.length = 0;
+        jest.runOnlyPendingTimers();
+        jest.useRealTimers();
+    });
+
+    function openAndSettle(context) {
+        registerPopupContext(context);
+        window.history.pushState({}, '', 'http://localhost/lovelace/test#standalone-popup');
+        openPopup(context, true);
+        flushRafQueue();
+        flushRafQueue();
+        dispatchTransformTransitionEnd(context.popUp);
+        flushRafQueue();
+        expect(context.popUp.classList.contains('is-popup-opened')).toBe(true);
+        expect(context.popUp.classList.contains('is-closing')).toBe(false);
+    }
+
+    test('the teardown closes a shell the URL has already left behind', () => {
+        const context = createStandaloneContext();
+        usedContexts.push(context);
+        openAndSettle(context);
+
+        // Home Assistant answers the back navigation by rebuilding the view, so
+        // the URL has already moved on when the card is torn down. This is the
+        // one moment the abandoned shell can be caught before it is painted.
+        window.history.pushState({}, '', 'http://localhost/lovelace/test');
+        cleanupPopupRuntime(context);
+
+        expect(context.popUp.classList.contains('is-popup-opened')).toBe(false);
+        expect(context.popUp.classList.contains('is-popup-closed')).toBe(true);
+        expect(context.popUp.classList.contains('is-closing')).toBe(false);
+    });
+
+    test('a card merely moved while its own hash is current stays open', () => {
+        const context = createStandaloneContext();
+        usedContexts.push(context);
+        openAndSettle(context);
+
+        // Same teardown, but the pop-up is still the one the URL points at, so
+        // a masonry re-layout moved the card and the pop-up is still open.
+        cleanupPopupRuntime(context);
+
+        expect(context.popUp.classList.contains('is-popup-opened')).toBe(true);
+        expect(context.popUp.classList.contains('is-popup-closed')).toBe(false);
+    });
+
+    test('the URL dispatcher closes a shell the runtime no longer owns', () => {
+        const context = createStandaloneContext();
+        usedContexts.push(context);
+        openAndSettle(context);
+
+        // The teardown happened before the URL moved, so it left the shell
+        // open, and the card came back and re-registered itself.
+        cleanupPopupRuntime(context);
+        registerPopupContext(context);
+        expect(context.popUp.classList.contains('is-popup-opened')).toBe(true);
+
+        window.history.pushState({}, '', 'http://localhost/lovelace/test');
+        window.dispatchEvent(new Event('popstate'));
+
+        expect(context.popUp.classList.contains('is-closing')).toBe(true);
+
+        flushRafQueue();
+        dispatchTransformTransitionEnd(context.popUp);
+        flushRafQueue();
+
+        expect(context.popUp.classList.contains('is-popup-opened')).toBe(false);
+        expect(context.popUp.classList.contains('is-popup-closed')).toBe(true);
+    });
+
+    test('the next update closes a shell no dispatcher event reached', () => {
+        const context = createStandaloneContext();
+        usedContexts.push(context);
+        openAndSettle(context);
+
+        cleanupPopupRuntime(context);
+        // The URL moves with no event our dispatcher ever hears.
+        updateMockLocation(window.location, 'http://localhost/lovelace/test');
+        expect(context.popUp.classList.contains('is-popup-opened')).toBe(true);
+
+        syncPopupOpenStateWithLocation(context, false);
+
+        expect(context.popUp.classList.contains('is-closing')).toBe(true);
+
+        flushRafQueue();
+        dispatchTransformTransitionEnd(context.popUp);
+        flushRafQueue();
+
+        expect(context.popUp.classList.contains('is-popup-opened')).toBe(false);
+        expect(context.popUp.classList.contains('is-popup-closed')).toBe(true);
+    });
+
+    test('a close already under way is left to finish on its own', () => {
+        const context = createStandaloneContext();
+        usedContexts.push(context);
+        openAndSettle(context);
+
+        window.history.pushState({}, '', 'http://localhost/lovelace/test');
+        window.dispatchEvent(new Event('popstate'));
+
+        expect(context.popUp.classList.contains('is-closing')).toBe(true);
+        const callsBefore = setStandalonePopUpCardsActive.mock.calls.length;
+
+        // A second event during the closing transition must not restart it.
+        window.dispatchEvent(new Event('popstate'));
+
+        expect(context.popUp.classList.contains('is-closing')).toBe(true);
+        expect(setStandalonePopUpCardsActive.mock.calls.length).toBe(callsBefore);
     });
 });
