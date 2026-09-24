@@ -101,6 +101,23 @@ const handlers = {
 // user interaction produces, still renders immediately.
 const hassRenderWindowMs = 50;
 
+// A card Home Assistant moves in the DOM takes its pop-up shell out of the
+// document and straight back, and a transition only runs from a style the shell
+// already had in the document. A close that starts right after the move, or one
+// already under way, would land at its end in one frame (#2589). So the shell
+// gets its style back at once, in the open position where it stood a frame ago,
+// and a close already under way is put back on top of it. A pop-up simply open
+// for a while has no close to replay and keeps its place. Opacity is read because
+// it only needs the style, where transform would lay out the view being rebuilt.
+function settlePopUpShellAfterMove(context) {
+  const popUp = context?.popUp;
+  if (!popUp?.isConnected) return;
+  const closing = popUp.classList.contains('is-closing');
+  if (closing) popUp.classList.remove('is-closing');
+  void getComputedStyle(popUp).opacity;
+  if (closing) popUp.classList.add('is-closing');
+}
+
 class BubbleCard extends HTMLElement {
   editor = false;
   isConnected = false;
@@ -118,6 +135,12 @@ class BubbleCard extends HTMLElement {
 
   connectedCallback() {
     this.isConnected = true;
+    // Back from a move, with the pop-up still whole.
+    if (this._popUpTeardownTimer) {
+      clearTimeout(this._popUpTeardownTimer);
+      this._popUpTeardownTimer = null;
+      try { settlePopUpShellAfterMove(this); } catch (e) {}
+    }
     this._everConnected = true;
     connectedCards.add(this);
     // Editor detection depends on the ancestor chain, which only changes
@@ -180,7 +203,16 @@ class BubbleCard extends HTMLElement {
     cleanupTapActions();
     try {
       if (this.config?.card_type === 'pop-up') {
-        cleanupPopUp(this);
+        // Home Assistant takes a card down and puts it straight back whenever
+        // it moves it in the DOM, which a view rebuilt on navigation does on
+        // the way in and on the way back (#2589, uix-forge). Tearing the pop-up
+        // down in between closed it in one frame without its slide, so the
+        // teardown waits one task and a card already back keeps its pop-up.
+        clearTimeout(this._popUpTeardownTimer);
+        this._popUpTeardownTimer = setTimeout(() => {
+          this._popUpTeardownTimer = null;
+          if (!this.isConnected) cleanupPopUp(this);
+        }, 0);
       }
     } catch (e) {}
     try { if (this.content) cleanupScrollingEffects(this.content); } catch (e) {}
