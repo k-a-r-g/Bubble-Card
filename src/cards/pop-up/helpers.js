@@ -2310,12 +2310,14 @@ function ensurePopupListenerBindings(context) {
     }
 }
 
-// The slide-to-close gesture keeps a single passive listener at rest and
+// The slide-to-close gesture keeps two passive listeners at rest, the one that
+// starts it and the capture one that only remembers the real touch, and
 // registers its own move/end pair on the document only for the length of a
-// drag, so a pop-up sitting open costs one listener and nothing else.
+// drag, so a pop-up sitting open costs nothing else.
 function getPopupBaseListeners(context) {
     return [
         [context.popUp, 'touchstart', context.handleTouchStart, { passive: true }],
+        [context.popUp, 'touchstart', context.handleTouchStartCapture, { passive: true, capture: true }],
         [window, 'keydown', context.closeOnEscape, { passive: true }],
     ];
 }

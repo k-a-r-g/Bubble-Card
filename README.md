@@ -173,6 +173,7 @@ This card allows you to create a pop-up with any content. Each pop-up is **hidde
 | `auto_close` | string | Optional | A timeout in milliseconds (e.g. `10000` for 10s) | Auto close the pop-up after a timeout |
 | `close_on_click` | boolean | Optional | `true` or `false` (default) | Automatically close the pop-up after any interaction |
 | `close_by_clicking_outside` | boolean | Optional | `true` (default) or `false` | Close the pop-up by clicking outside of it |
+| `slide_to_close` | boolean or string | Optional | `true` (default), `header` or `false` | Close the pop-up by sliding it down. `header` only lets it slide from its header, `false` turns the gesture off |
 | `width_desktop` | string | Optional | Any CSS value | Width on desktop (`100%` by default on mobile) |
 | `margin` | string | Optional | Any CSS value | Use this **only** if your pop-up is not well centered on mobile (e.g. `13px`) |
 | `margin_top_mobile` | string | Optional | Any CSS value | Top margin on mobile (e.g. `-56px` if your header is hidden) |
