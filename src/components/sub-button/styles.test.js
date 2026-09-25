@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const stylesPath = join(dirname(fileURLToPath(import.meta.url)), 'styles.css');
-const styles = readFileSync(stylesPath, 'utf8');
+const styles = readFileSync(stylesPath, 'utf8').replace(/\r\n/g, '\n');
 
 function getRule(selector) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
