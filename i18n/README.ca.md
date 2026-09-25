@@ -178,6 +178,7 @@ Aquesta targeta us permet crear un pop-up amb qualsevol contingut. Cada pop-up e
 | `auto_close` | string | Opcional | Un temps d'espera en mil·lisegons (p. ex. `10000` per a 10 s) | Tanca automàticament el pop-up després d'un temps d'espera |
 | `close_on_click` | boolean | Opcional | `true` o `false` (per defecte) | Tanca automàticament el pop-up després de qualsevol interacció |
 | `close_by_clicking_outside` | boolean | Opcional | `true` (per defecte) o `false` | Tanca el pop-up fent clic fora d'ell |
+| `slide_to_close` | boolean o string | Opcional | `true` (per defecte), `header` o `false` | Tanca el pop-up lliscant-lo cap avall |
 | `width_desktop` | string | Opcional | Qualsevol valor CSS | Amplada a l'escriptori (`100%` per defecte al mòbil) |
 | `margin` | string | Opcional | Qualsevol valor CSS | Utilitzeu-ho **només** si el vostre pop-up no queda ben centrat al mòbil (p. ex. `13px`) |
 | `margin_top_mobile` | string | Opcional | Qualsevol valor CSS | Marge superior al mòbil (p. ex. `-56px` si la vostra capçalera està oculta) |

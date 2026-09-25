@@ -178,6 +178,7 @@ Bubble Card는 Home Assistant를 위한 미니멀하고 커스터마이즈 가�
 | `auto_close` | string | Optional | 밀리초 단위 타임아웃 (예: 10초는 `10000`) | 타임아웃 후 팝업을 자동으로 닫음 |
 | `close_on_click` | boolean | Optional | `true` 또는 `false` (default) | 어떤 상호작용 후에도 팝업을 자동으로 닫음 |
 | `close_by_clicking_outside` | boolean | Optional | `true` (default) 또는 `false` | 팝업 바깥을 클릭해서 닫기 |
+| `slide_to_close` | boolean 또는 string | Optional | `true` (default), `header` 또는 `false` | 팝업을 아래로 밀어서 닫기 |
 | `width_desktop` | string | Optional | Any CSS value | 데스크톱에서의 너비 (모바일에서는 기본값이 `100%`) |
 | `margin` | string | Optional | Any CSS value | 모바일에서 팝업이 잘 가운데 정렬되지 않을 때**만** 사용하세요 (예: `13px`) |
 | `margin_top_mobile` | string | Optional | Any CSS value | 모바일에서의 상단 여백 (예: 헤더가 숨겨져 있다면 `-56px`) |

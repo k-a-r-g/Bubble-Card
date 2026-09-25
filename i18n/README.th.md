@@ -178,6 +178,7 @@ Bubble Card คือชุดการ์ดแบบมินิมอลแ�
 | `auto_close` | string | Optional | ระยะเวลาหมดเวลาเป็นมิลลิวินาที (เช่น `10000` สำหรับ 10 วินาที) | ปิดป๊อปอัปอัตโนมัติหลังจากหมดเวลา |
 | `close_on_click` | boolean | Optional | `true` หรือ `false` (ค่าเริ่มต้น) | ปิดป๊อปอัปอัตโนมัติหลังการโต้ตอบใด ๆ |
 | `close_by_clicking_outside` | boolean | Optional | `true` (ค่าเริ่มต้น) หรือ `false` | ปิดป๊อปอัปโดยการคลิกด้านนอกของมัน |
+| `slide_to_close` | boolean หรือ string | Optional | `true` (ค่าเริ่มต้น), `header` หรือ `false` | ปิดป๊อปอัปโดยการปัดลง |
 | `width_desktop` | string | Optional | ค่า CSS ใดก็ได้ | ความกว้างบนเดสก์ท็อป (`100%` เป็นค่าเริ่มต้นบนมือถือ) |
 | `margin` | string | Optional | ค่า CSS ใดก็ได้ | ใช้สิ่งนี้**เฉพาะ**เมื่อป๊อปอัปของคุณไม่อยู่กึ่งกลางอย่างเหมาะสมบนมือถือ (เช่น `13px`) |
 | `margin_top_mobile` | string | Optional | ค่า CSS ใดก็ได้ | ระยะขอบด้านบนบนมือถือ (เช่น `-56px` หากส่วนหัวของคุณถูกซ่อนอยู่) |

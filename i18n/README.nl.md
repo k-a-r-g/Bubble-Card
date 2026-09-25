@@ -178,6 +178,7 @@ Met deze kaart kun je een pop-up met willekeurige inhoud maken. Elke pop-up is *
 | `auto_close` | string | Optioneel | Een timeout in milliseconden (bijv. `10000` voor 10s) | Sluit de pop-up automatisch na een timeout |
 | `close_on_click` | boolean | Optioneel | `true` of `false` (standaard) | Sluit de pop-up automatisch na elke interactie |
 | `close_by_clicking_outside` | boolean | Optioneel | `true` (standaard) of `false` | Sluit de pop-up door erbuiten te klikken |
+| `slide_to_close` | boolean of string | Optioneel | `true` (standaard), `header` of `false` | Sluit de pop-up door hem omlaag te vegen |
 | `width_desktop` | string | Optioneel | Elke CSS-waarde | Breedte op desktop (standaard `100%` op mobiel) |
 | `margin` | string | Optioneel | Elke CSS-waarde | Gebruik dit **alleen** als je pop-up niet goed gecentreerd is op mobiel (bijv. `13px`) |
 | `margin_top_mobile` | string | Optioneel | Elke CSS-waarde | Bovenmarge op mobiel (bijv. `-56px` als je koptekst verborgen is) |

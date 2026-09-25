@@ -178,6 +178,7 @@ Kjo kartë ju lejon të krijoni një pop-up me çfarëdo lloj përmbajtjeje. Çd
 | `auto_close` | string | Opsionale | Një afat kohor në milisekonda (p.sh. `10000` për 10s) | Mbyll automatikisht pop-up-in pas një afati kohor |
 | `close_on_click` | boolean | Opsionale | `true` ose `false` (parazgjedhje) | Mbyll automatikisht pop-up-in pas çdo ndërveprimi |
 | `close_by_clicking_outside` | boolean | Opsionale | `true` (parazgjedhje) ose `false` | Mbyll pop-up-in duke klikuar jashtë tij |
+| `slide_to_close` | boolean ose string | Opsionale | `true` (parazgjedhje), `header` ose `false` | Mbyll pop-up-in duke e rrëshqitur poshtë |
 | `width_desktop` | string | Opsionale | Çdo vlerë CSS | Gjerësia në desktop (`100%` si parazgjedhje në mobile) |
 | `margin` | string | Opsionale | Çdo vlerë CSS | Përdoreni këtë **vetëm** nëse pop-up-i juaj nuk është i qendërzuar mirë në mobile (p.sh. `13px`) |
 | `margin_top_mobile` | string | Opsionale | Çdo vlerë CSS | Marzhi i sipërm në mobile (p.sh. `-56px` nëse koka juaj është e fshehur) |

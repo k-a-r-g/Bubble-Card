@@ -178,6 +178,7 @@ Dette kortet lar deg lage en pop-up med hvilket som helst innhold. Hver pop-up e
 | `auto_close` | string | Valgfritt | En tidsavbrudd i millisekunder (f.eks. `10000` for 10s) | Lukk pop-upen automatisk etter en gitt tid |
 | `close_on_click` | boolean | Valgfritt | `true` eller `false` (standard) | Lukk pop-upen automatisk etter enhver interaksjon |
 | `close_by_clicking_outside` | boolean | Valgfritt | `true` (standard) eller `false` | Lukk pop-upen ved å klikke utenfor den |
+| `slide_to_close` | boolean eller string | Valgfritt | `true` (standard), `header` eller `false` | Lukk pop-upen ved å sveipe den ned |
 | `width_desktop` | string | Valgfritt | En hvilken som helst CSS-verdi | Bredde på datamaskin (`100%` som standard på mobil) |
 | `margin` | string | Valgfritt | En hvilken som helst CSS-verdi | Bruk denne **bare** hvis pop-upen din ikke er godt sentrert på mobil (f.eks. `13px`) |
 | `margin_top_mobile` | string | Valgfritt | En hvilken som helst CSS-verdi | Toppmarg på mobil (f.eks. `-56px` hvis toppteksten din er skjult) |

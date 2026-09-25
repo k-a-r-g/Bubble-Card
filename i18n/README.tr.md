@@ -178,6 +178,7 @@ Bu kart, istediğiniz içerikle bir pop-up oluşturmanızı sağlar. Her pop-up 
 | `auto_close` | string | İsteğe bağlı | Milisaniye cinsinden bir zaman aşımı (ör. 10 saniye için `10000`) | Belirli bir sürenin sonunda pop-up'ı otomatik kapatır |
 | `close_on_click` | boolean | İsteğe bağlı | `true` veya `false` (varsayılan) | Herhangi bir etkileşimden sonra pop-up'ı otomatik olarak kapatır |
 | `close_by_clicking_outside` | boolean | İsteğe bağlı | `true` (varsayılan) veya `false` | Pop-up'ın dışına tıklayarak kapatır |
+| `slide_to_close` | boolean veya string | İsteğe bağlı | `true` (varsayılan), `header` veya `false` | Pop-up'ı aşağı kaydırarak kapatır |
 | `width_desktop` | string | İsteğe bağlı | Herhangi bir CSS değeri | Masaüstünde genişlik (mobilde varsayılan olarak `100%`) |
 | `margin` | string | İsteğe bağlı | Herhangi bir CSS değeri | Bunu **yalnızca** pop-up'ınız mobilde iyi ortalanmamışsa kullanın (ör. `13px`) |
 | `margin_top_mobile` | string | İsteğe bağlı | Herhangi bir CSS değeri | Mobilde üst kenar boşluğu (ör. başlığınız gizliyse `-56px`) |

@@ -178,6 +178,7 @@ Hægt er að stilla alla valkosti í Home Assistant ritlinum. En þú finnur ná
 | `auto_close` | string | Valfrjálst | Tímamörk í millisekúndum (t.d. `10000` fyrir 10 sek) | Lokar sprettiglugganum sjálfkrafa eftir ákveðinn tíma |
 | `close_on_click` | boolean | Valfrjálst | `true` eða `false` (sjálfgefið) | Lokar sprettiglugganum sjálfkrafa eftir hvaða samskipti sem er |
 | `close_by_clicking_outside` | boolean | Valfrjálst | `true` (sjálfgefið) eða `false` | Lokar sprettiglugganum með því að smella fyrir utan hann |
+| `slide_to_close` | boolean eða string | Valfrjálst | `true` (sjálfgefið), `header` eða `false` | Lokar sprettiglugganum með því að strjúka honum niður |
 | `width_desktop` | string | Valfrjálst | Hvaða CSS gildi sem er | Breidd á tölvu (`100%` sjálfgefið á farsíma) |
 | `margin` | string | Valfrjálst | Hvaða CSS gildi sem er | Notaðu þetta **aðeins** ef sprettiglugginn þinn er ekki vel miðjaður á farsíma (t.d. `13px`) |
 | `margin_top_mobile` | string | Valfrjálst | Hvaða CSS gildi sem er | Efri spássía á farsíma (t.d. `-56px` ef hausinn þinn er falinn) |

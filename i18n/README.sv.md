@@ -178,6 +178,7 @@ Det här kortet låter dig skapa en pop-up med valfritt innehåll. Varje pop-up 
 | `auto_close` | string | Valfritt | En timeout i millisekunder (t.ex. `10000` för 10s) | Stänger pop-upen automatiskt efter en timeout |
 | `close_on_click` | boolean | Valfritt | `true` eller `false` (standard) | Stänger pop-upen automatiskt efter valfri interaktion |
 | `close_by_clicking_outside` | boolean | Valfritt | `true` (standard) eller `false` | Stänger pop-upen genom att klicka utanför den |
+| `slide_to_close` | boolean eller string | Valfritt | `true` (standard), `header` eller `false` | Stänger pop-upen genom att svepa den nedåt |
 | `width_desktop` | string | Valfritt | Valfritt CSS-värde | Bredd på dator (`100%` som standard på mobil) |
 | `margin` | string | Valfritt | Valfritt CSS-värde | Använd detta **endast** om din pop-up inte centreras korrekt på mobil (t.ex. `13px`) |
 | `margin_top_mobile` | string | Valfritt | Valfritt CSS-värde | Övre marginal på mobil (t.ex. `-56px` om din rubrik är dold) |

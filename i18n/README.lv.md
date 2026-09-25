@@ -178,6 +178,7 @@ Visas opcijas var konfigurēt Home Assistant redaktorā. Bet zemāk esošajā do
 | `auto_close` | string | Neobligāts | Noildze milisekundēs (piemēram, `10000` 10 sekundēm) | Automātiski aizvērt uznirstošo logu pēc noildzes |
 | `close_on_click` | boolean | Neobligāts | `true` vai `false` (noklusējums) | Automātiski aizvērt uznirstošo logu pēc jebkuras mijiedarbības |
 | `close_by_clicking_outside` | boolean | Neobligāts | `true` (noklusējums) vai `false` | Aizvērt uznirstošo logu, uzklikšķinot ārpus tā |
+| `slide_to_close` | boolean vai string | Neobligāts | `true` (noklusējums), `header` vai `false` | Aizvērt uznirstošo logu, velkot to uz leju |
 | `width_desktop` | string | Neobligāts | Jebkura CSS vērtība | Platums datorā (`100%` pēc noklusējuma mobilajā ierīcē) |
 | `margin` | string | Neobligāts | Jebkura CSS vērtība | Izmantojiet to **tikai** tad, ja jūsu uznirstošais logs nav labi centrēts mobilajā ierīcē (piemēram, `13px`) |
 | `margin_top_mobile` | string | Neobligāts | Jebkura CSS vērtība | Augšējā mala mobilajā ierīcē (piemēram, `-56px`, ja jūsu galvene ir paslēpta) |

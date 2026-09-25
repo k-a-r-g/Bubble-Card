@@ -178,6 +178,7 @@ Mit dere Karte chasch e Pop-up mit beliebigem Inhalt erstelle. Jedes Pop-up isch
 | `auto_close` | string | Optional | E Timeout i Millisekunde (z.B. `10000` für 10s) | Schliesst s Pop-up automatisch nach emene Timeout |
 | `close_on_click` | boolean | Optional | `true` oder `false` (Standard) | Schliesst s Pop-up automatisch nach jeder Interaktion |
 | `close_by_clicking_outside` | boolean | Optional | `true` (Standard) oder `false` | Schliesst s Pop-up wenn me usserhalb dervo klickt |
+| `slide_to_close` | boolean oder string | Optional | `true` (Standard), `header` oder `false` | Schliesst s Pop-up wenn me s nach unde wischt |
 | `width_desktop` | string | Optional | Jede CSS-Wert | Breiti am Desktop (`100%` Standard uf em Handy) |
 | `margin` | string | Optional | Jede CSS-Wert | Nur verwende, wenn di Pop-up uf em Handy nid guet zentriert isch (z.B. `13px`) |
 | `margin_top_mobile` | string | Optional | Jede CSS-Wert | Obere Rand uf em Handy (z.B. `-56px` wenn di Kopfziile verschteckt isch) |

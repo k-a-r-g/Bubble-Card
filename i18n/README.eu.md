@@ -178,6 +178,7 @@ Txartel honek edukin edozein duen laster-leiho bat sortzeko aukera ematen dizu. 
 | `auto_close` | string | Aukerakoa | Milisegundotan denbora-muga bat (adib. `10000` 10s-rako) | Laster-leihoa automatikoki ixten du denbora-muga baten ondoren |
 | `close_on_click` | boolean | Aukerakoa | `true` edo `false` (lehenetsia) | Laster-leihoa automatikoki ixten du edozein interakzioren ondoren |
 | `close_by_clicking_outside` | boolean | Aukerakoa | `true` (lehenetsia) edo `false` | Laster-leihoa ixten du kanpoaldean klikatuz |
+| `slide_to_close` | boolean edo string | Aukerakoa | `true` (lehenetsia), `header` edo `false` | Laster-leihoa ixten du behera irristatuz |
 | `width_desktop` | string | Aukerakoa | Edozein CSS balio | Zabalera mahaigainean (`100%` lehenetsia mugikorrean) |
 | `margin` | string | Aukerakoa | Edozein CSS balio | Erabili hau **soilik** zure laster-leihoa mugikorrean ondo zentratuta ez badago (adib. `13px`) |
 | `margin_top_mobile` | string | Aukerakoa | Edozein CSS balio | Goiko marjina mugikorrean (adib. `-56px` zure goiburua ezkutuan badago) |

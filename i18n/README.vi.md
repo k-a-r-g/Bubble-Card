@@ -178,6 +178,7 @@ Thẻ này cho phép bạn tạo một pop-up với bất kỳ nội dung nào. 
 | `auto_close` | string | Tùy chọn | Thời gian chờ tính bằng mili giây (ví dụ: `10000` cho 10 giây) | Tự động đóng pop-up sau một khoảng thời gian chờ |
 | `close_on_click` | boolean | Tùy chọn | `true` hoặc `false` (mặc định) | Tự động đóng pop-up sau bất kỳ tương tác nào |
 | `close_by_clicking_outside` | boolean | Tùy chọn | `true` (mặc định) hoặc `false` | Đóng pop-up bằng cách nhấp ra ngoài nó |
+| `slide_to_close` | boolean hoặc string | Tùy chọn | `true` (mặc định), `header` hoặc `false` | Đóng pop-up bằng cách vuốt nó xuống |
 | `width_desktop` | string | Tùy chọn | Bất kỳ giá trị CSS nào | Chiều rộng trên máy tính để bàn (`100%` theo mặc định trên di động) |
 | `margin` | string | Tùy chọn | Bất kỳ giá trị CSS nào | Chỉ dùng cái này nếu pop-up của bạn không được căn giữa tốt trên di động (ví dụ: `13px`) |
 | `margin_top_mobile` | string | Tùy chọn | Bất kỳ giá trị CSS nào | Lề trên cùng trên di động (ví dụ: `-56px` nếu header của bạn bị ẩn) |

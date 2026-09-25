@@ -178,6 +178,7 @@ Ova kartica vam omogućava da napravite iskačući prozor sa bilo kakvim sadrža
 | `auto_close` | string | Opciono | Vreme isteka u milisekundama (npr. `10000` za 10s) | Automatski zatvara iskačući prozor nakon isteka vremena |
 | `close_on_click` | boolean | Opciono | `true` ili `false` (podrazumevano) | Automatski zatvara iskačući prozor nakon bilo koje interakcije |
 | `close_by_clicking_outside` | boolean | Opciono | `true` (podrazumevano) ili `false` | Zatvara iskačući prozor klikom van njega |
+| `slide_to_close` | boolean ili string | Opciono | `true` (podrazumevano), `header` ili `false` | Zatvara iskačući prozor prevlačenjem nadole |
 | `width_desktop` | string | Opciono | Bilo koja CSS vrednost | Širina na desktopu (`100%` podrazumevano na mobilnim uređajima) |
 | `margin` | string | Opciono | Bilo koja CSS vrednost | Koristite ovo **samo** ako vaš iskačući prozor nije dobro centriran na mobilnim uređajima (npr. `13px`) |
 | `margin_top_mobile` | string | Opciono | Bilo koja CSS vrednost | Gornja margina na mobilnim uređajima (npr. `-56px` ako je vaše zaglavlje sakriveno) |

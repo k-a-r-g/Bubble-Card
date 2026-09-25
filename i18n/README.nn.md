@@ -178,6 +178,7 @@ Dette kortet lèt deg lage ein pop-up med kva innhald du vil. Kvar pop-up er **s
 | `auto_close` | string | Valfritt | Ei tidsgrense i millisekund (t.d. `10000` for 10s) | Lukk pop-uppen automatisk etter ei tidsgrense |
 | `close_on_click` | boolean | Valfritt | `true` eller `false` (standard) | Lukk pop-uppen automatisk etter kva interaksjon som helst |
 | `close_by_clicking_outside` | boolean | Valfritt | `true` (standard) eller `false` | Lukk pop-uppen ved å klikke utanfor han |
+| `slide_to_close` | boolean eller string | Valfritt | `true` (standard), `header` eller `false` | Lukk pop-uppen ved å sveipe han ned |
 | `width_desktop` | string | Valfritt | Kva CSS-verdi som helst | Breidd på skrivebord (`100%` som standard på mobil) |
 | `margin` | string | Valfritt | Kva CSS-verdi som helst | Bruk dette **berre** viss pop-uppen din ikkje er godt sentrert på mobil (t.d. `13px`) |
 | `margin_top_mobile` | string | Valfritt | Kva CSS-verdi som helst | Toppmarg på mobil (t.d. `-56px` viss toppteksten din er skjult) |

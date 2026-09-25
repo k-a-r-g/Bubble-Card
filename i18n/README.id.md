@@ -178,6 +178,7 @@ Kartu ini memungkinkan Anda membuat pop-up dengan konten apa pun. Setiap pop-up 
 | `auto_close` | string | Opsional | Batas waktu dalam milidetik (misalnya `10000` untuk 10 detik) | Menutup pop-up secara otomatis setelah batas waktu |
 | `close_on_click` | boolean | Opsional | `true` atau `false` (default) | Menutup pop-up secara otomatis setelah interaksi apa pun |
 | `close_by_clicking_outside` | boolean | Opsional | `true` (default) atau `false` | Menutup pop-up dengan mengklik di luar area pop-up |
+| `slide_to_close` | boolean atau string | Opsional | `true` (default), `header` atau `false` | Menutup pop-up dengan menggesernya ke bawah |
 | `width_desktop` | string | Opsional | Nilai CSS apa pun | Lebar pada desktop (`100%` secara default pada mobile) |
 | `margin` | string | Opsional | Nilai CSS apa pun | Gunakan ini **hanya** jika pop-up Anda tidak tercentang dengan baik di mobile (misalnya `13px`) |
 | `margin_top_mobile` | string | Opsional | Nilai CSS apa pun | Margin atas pada mobile (misalnya `-56px` jika header Anda tersembunyi) |

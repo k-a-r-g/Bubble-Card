@@ -178,6 +178,7 @@ Tato karta umožňuje vytvořit pop-up s libovolným obsahem. Každý pop-up je 
 | `auto_close` | string | Volitelné | Časový limit v milisekundách (např. `10000` pro 10 s) | Automaticky zavře pop-up po uplynutí časového limitu |
 | `close_on_click` | boolean | Volitelné | `true` nebo `false` (výchozí) | Automaticky zavře pop-up po jakékoli interakci |
 | `close_by_clicking_outside` | boolean | Volitelné | `true` (výchozí) nebo `false` | Zavře pop-up kliknutím mimo něj |
+| `slide_to_close` | boolean nebo string | Volitelné | `true` (výchozí), `header` nebo `false` | Zavře pop-up přejetím dolů |
 | `width_desktop` | string | Volitelné | Libovolná hodnota CSS | Šířka na počítači (na mobilu výchozí `100%`) |
 | `margin` | string | Volitelné | Libovolná hodnota CSS | Použijte **pouze** v případě, že váš pop-up není na mobilu správně vystředěný (např. `13px`) |
 | `margin_top_mobile` | string | Volitelné | Libovolná hodnota CSS | Horní okraj na mobilu (např. `-56px`, pokud máte skryté záhlaví) |

@@ -178,6 +178,7 @@ Acest card îți permite să creezi un pop-up cu orice conținut. Fiecare pop-up
 | `auto_close` | string | Opțional | Un timeout în milisecunde (de ex. `10000` pentru 10s) | Închide automat pop-up-ul după un timeout |
 | `close_on_click` | boolean | Opțional | `true` sau `false` (implicit) | Închide automat pop-up-ul după orice interacțiune |
 | `close_by_clicking_outside` | boolean | Opțional | `true` (implicit) sau `false` | Închide pop-up-ul dând clic în afara lui |
+| `slide_to_close` | boolean sau string | Opțional | `true` (implicit), `header` sau `false` | Închide pop-up-ul glisându-l în jos |
 | `width_desktop` | string | Opțional | Orice valoare CSS | Lățimea pe desktop (`100%` implicit pe mobil) |
 | `margin` | string | Opțional | Orice valoare CSS | Folosește asta **doar** dacă pop-up-ul tău nu este bine centrat pe mobil (de ex. `13px`) |
 | `margin_top_mobile` | string | Opțional | Orice valoare CSS | Marginea de sus pe mobil (de ex. `-56px` dacă antetul tău este ascuns) |

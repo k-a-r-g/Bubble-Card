@@ -178,6 +178,7 @@ Mit dieser Karte kannst du ein Pop-up mit beliebigem Inhalt erstellen. Jedes Pop
 | `auto_close` | string | Optional | Ein Timeout in Millisekunden (z. B. `10000` für 10 s) | Schließt das Pop-up nach einem Timeout automatisch |
 | `close_on_click` | boolean | Optional | `true` oder `false` (Standard) | Schließt das Pop-up automatisch nach jeder Interaktion |
 | `close_by_clicking_outside` | boolean | Optional | `true` (Standard) oder `false` | Schließt das Pop-up durch Klicken außerhalb davon |
+| `slide_to_close` | boolean oder string | Optional | `true` (Standard), `header` oder `false` | Schließt das Pop-up durch Wischen nach unten |
 | `width_desktop` | string | Optional | Ein beliebiger CSS-Wert | Breite auf dem Desktop (auf Mobilgeräten standardmäßig `100%`) |
 | `margin` | string | Optional | Ein beliebiger CSS-Wert | Verwende dies **nur**, wenn dein Pop-up auf Mobilgeräten nicht gut zentriert ist (z. B. `13px`) |
 | `margin_top_mobile` | string | Optional | Ein beliebiger CSS-Wert | Oberer Abstand auf Mobilgeräten (z. B. `-56px`, wenn deine Kopfzeile ausgeblendet ist) |

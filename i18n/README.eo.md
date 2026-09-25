@@ -178,6 +178,7 @@ Vi ankaŭ povas rigardi mian YouTube-kanalon por paŝo-post-paŝaj videoj.
 | `auto_close` | string | Malnepra | Tempolimo en milisekundoj (ekz. `10000` por 10s) | Aŭtomate fermas la ŝprucfenestron post tempolimo |
 | `close_on_click` | boolean | Malnepra | `true` aŭ `false` (defaŭlta) | Aŭtomate fermas la ŝprucfenestron post ajna interago |
 | `close_by_clicking_outside` | boolean | Malnepra | `true` (defaŭlta) aŭ `false` | Fermas la ŝprucfenestron per klako ekster ĝi |
+| `slide_to_close` | boolean aŭ string | Malnepra | `true` (defaŭlta), `header` aŭ `false` | Fermas la ŝprucfenestron per ŝovo malsupren |
 | `width_desktop` | string | Malnepra | Ajna CSS-valoro | Larĝo sur komputilo (`100%` defaŭlte sur poŝtelefono) |
 | `margin` | string | Malnepra | Ajna CSS-valoro | Uzu tion **nur** se via ŝprucfenestro ne estas bone centrigita sur poŝtelefono (ekz. `13px`) |
 | `margin_top_mobile` | string | Malnepra | Ajna CSS-valoro | Supra marĝeno sur poŝtelefono (ekz. `-56px` se via kapo estas kaŝita) |

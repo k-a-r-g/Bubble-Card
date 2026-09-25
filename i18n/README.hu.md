@@ -178,6 +178,7 @@ Ez a kártya lehetővé teszi, hogy bármilyen tartalommal pop-upot hozz létre.
 | `auto_close` | string | Nem kötelező | Egy időtúllépés ezredmásodpercben (pl. `10000` 10 másodpercért) | A pop-up automatikus bezárása egy időtúllépés után |
 | `close_on_click` | boolean | Nem kötelező | `true` vagy `false` (alapértelmezett) | A pop-up automatikus bezárása bármilyen interakció után |
 | `close_by_clicking_outside` | boolean | Nem kötelező | `true` (alapértelmezett) vagy `false` | A pop-up bezárása a rajta kívülre kattintva |
+| `slide_to_close` | boolean vagy string | Nem kötelező | `true` (alapértelmezett), `header` vagy `false` | A pop-up bezárása lefelé húzással |
 | `width_desktop` | string | Nem kötelező | Bármilyen CSS érték | Szélesség asztali gépen (mobilon alapértelmezetten `100%`) |
 | `margin` | string | Nem kötelező | Bármilyen CSS érték | Ezt **csak** akkor használd, ha a pop-upod nincs jól középre igazítva mobilon (pl. `13px`) |
 | `margin_top_mobile` | string | Nem kötelező | Bármilyen CSS érték | Felső térköz mobilon (pl. `-56px`, ha a fejléced rejtve van) |
