@@ -344,6 +344,19 @@ styles: |
 
 A `toggle` action aimed at the same `N_entity` updates these visual classes immediately, then reconciles them with the state reported by Home Assistant. If Home Assistant does not confirm the expected state within two seconds, the visual state rolls back. Actions with a confirmation dialog, another target, or another action type always wait for Home Assistant instead.
 
+When an action calls a script or service that changes `N_entity` indirectly, add `optimistic_state` to tell the button what visual result to expect. Supported values are `toggle`, `on` and `off`:
+
+```yaml
+1_entity: light.kitchen
+1_button_action:
+  tap_action:
+    action: perform-action
+    perform_action: script.kitchen_scene
+    optimistic_state: toggle
+```
+
+This hint only affects immediate visual feedback; the script action is unchanged and the real `N_entity` state remains authoritative. Do not add the hint when the script's result is conditional.
+
 > [!NOTE]
 > Configuring `double_tap_action` delays a normal tap by 200 ms so that Bubble Card can distinguish a single tap from a double tap. Set it to `none` or omit it when that delay is not wanted.
 

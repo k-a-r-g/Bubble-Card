@@ -50,17 +50,26 @@ function beginOptimisticToggle(context, button, detail) {
 
     const eventConfig = detail.config;
     const actionConfig = eventConfig?.[`${gesture}_action`];
-    if (actionConfig?.action !== 'toggle' || actionConfig.confirmation ||
-        !actionTargetsDisplayEntity(eventConfig, actionConfig, button.lightEntity)) {
-        return false;
-    }
+    if (!actionConfig || actionConfig.confirmation) return false;
+
+    const optimisticState = actionConfig.optimistic_state;
+    const hasExplicitState = ['toggle', 'on', 'off'].includes(optimisticState);
+    const isMatchingToggle = actionConfig.action === 'toggle' &&
+        actionTargetsDisplayEntity(eventConfig, actionConfig, button.lightEntity);
+    if (!hasExplicitState && !isMatchingToggle) return false;
 
     const confirmedState = context._hass?.states?.[button.lightEntity]?.state;
     const displayedState = button.optimisticToggleState ?? confirmedState;
-    if (displayedState !== 'on' && displayedState !== 'off') return false;
+    let expectedState;
+    if (optimisticState === 'on' || optimisticState === 'off') {
+        expectedState = optimisticState;
+    } else {
+        if (displayedState !== 'on' && displayedState !== 'off') return false;
+        expectedState = displayedState === 'on' ? 'off' : 'on';
+    }
 
     clearOptimisticToggle(button);
-    button.optimisticToggleState = displayedState === 'on' ? 'off' : 'on';
+    button.optimisticToggleState = expectedState;
     button.optimisticToggleTimer = setTimeout(() => {
         clearOptimisticToggle(button);
         changeLight(context);
@@ -71,7 +80,27 @@ function beginOptimisticToggle(context, button, detail) {
 
 function ensureOptimisticToggleListener(context, button) {
     if (button.optimisticToggleListener) return;
-    button.optimisticToggleListener = (event) => beginOptimisticToggle(context, button, event.detail);
+    button.optimisticToggleListener = (event) => {
+        const detail = event.detail;
+        beginOptimisticToggle(context, button, detail);
+
+        // optimistic_state belongs to Bubble Card, not Home Assistant's action
+        // schema. Keep it available for the local prediction above, then hand
+        // HA a clean action config as the event continues bubbling.
+        const gesture = detail?.action;
+        const actionKey = `${gesture}_action`;
+        const actionConfig = detail?.config?.[actionKey];
+        if (actionConfig && Object.prototype.hasOwnProperty.call(actionConfig, 'optimistic_state')) {
+            const { optimistic_state, ...homeAssistantAction } = actionConfig;
+            event.detail = {
+                ...detail,
+                config: {
+                    ...detail.config,
+                    [actionKey]: homeAssistantAction,
+                },
+            };
+        }
+    };
     button.addEventListener('hass-action', button.optimisticToggleListener);
 }
 

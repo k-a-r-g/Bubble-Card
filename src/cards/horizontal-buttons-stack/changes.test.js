@@ -300,16 +300,18 @@ describe('lightweight state refresh', () => {
         return { context, button: context.elements.buttons[0] };
     }
 
-    function dispatchToggle(button, actionConfig = { action: 'toggle' }) {
+    function dispatchTapAction(button, actionConfig = { action: 'toggle' }) {
         const listener = button.listeners['hass-action'][0];
-        listener({ detail: {
+        const event = { detail: {
             action: 'tap',
             config: {
                 entity: 'light.kitchen',
                 entity_id: 'light.kitchen',
                 tap_action: actionConfig,
             },
-        } });
+        } };
+        listener(event);
+        return event;
     }
 
     test('repaints a numbered entity without remeasuring the button row', () => {
@@ -374,7 +376,7 @@ describe('lightweight state refresh', () => {
     test('shows a matching toggle immediately and keeps the confirmed state', () => {
         const { context, button } = actionButtonContext();
 
-        dispatchToggle(button);
+        dispatchTapAction(button);
 
         expect(button.classList.contains('is-on')).toBe(true);
         expect(button.classList.contains('is-off')).toBe(false);
@@ -393,7 +395,7 @@ describe('lightweight state refresh', () => {
     test('rolls an unconfirmed optimistic toggle back after two seconds', () => {
         const { button } = actionButtonContext();
 
-        dispatchToggle(button);
+        dispatchTapAction(button);
         expect(button.classList.contains('is-on')).toBe(true);
 
         jest.advanceTimersByTime(2000);
@@ -405,7 +407,7 @@ describe('lightweight state refresh', () => {
     test('does not predict a toggle targeting another entity', () => {
         const { button } = actionButtonContext();
 
-        dispatchToggle(button, {
+        dispatchTapAction(button, {
             action: 'toggle',
             target: { entity_id: 'light.living_room' },
         });
@@ -418,7 +420,7 @@ describe('lightweight state refresh', () => {
     test('waits for confirmation before showing a confirmed toggle action', () => {
         const { button } = actionButtonContext();
 
-        dispatchToggle(button, {
+        dispatchTapAction(button, {
             action: 'toggle',
             confirmation: { text: 'Toggle this light?' },
         });
@@ -426,6 +428,36 @@ describe('lightweight state refresh', () => {
         expect(button.classList.contains('is-on')).toBe(false);
         expect(button.classList.contains('is-off')).toBe(true);
         expect(jest.getTimerCount()).toBe(0);
+    });
+
+    test('uses an explicit toggle hint for a script action', () => {
+        const { button } = actionButtonContext();
+
+        const event = dispatchTapAction(button, {
+            action: 'perform-action',
+            perform_action: 'script.kitchen_scene',
+            target: { entity_id: 'script.kitchen_scene' },
+            optimistic_state: 'toggle',
+        });
+
+        expect(button.classList.contains('is-on')).toBe(true);
+        expect(button.classList.contains('is-off')).toBe(false);
+        expect(jest.getTimerCount()).toBe(1);
+        expect(event.detail.config.tap_action.optimistic_state).toBeUndefined();
+        expect(event.detail.config.tap_action.perform_action).toBe('script.kitchen_scene');
+    });
+
+    test.each(['on', 'off'])('uses an explicit %s hint as the expected state', (state) => {
+        const { button } = actionButtonContext();
+
+        dispatchTapAction(button, {
+            action: 'perform-action',
+            perform_action: 'script.kitchen_scene',
+            optimistic_state: state,
+        });
+
+        expect(button.classList.contains('is-on')).toBe(state === 'on');
+        expect(button.classList.contains('is-off')).toBe(state === 'off');
     });
 });
 
