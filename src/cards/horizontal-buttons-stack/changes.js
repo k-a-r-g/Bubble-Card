@@ -85,6 +85,12 @@ export function changeLight(context) {
         const rgbColor = entityData?.attributes.rgb_color;
         const state = entityData?.state;
 
+        // Expose the display state directly to CSS so an icon can react
+        // without a JavaScript style template forcing a complete card render.
+        button.classList.remove('is-on', 'is-off');
+        if (state === 'on') button.classList.add('is-on');
+        if (state === 'off') button.classList.add('is-off');
+
         if (rgbColor) {
             const rgbColorOpacity = (isColorCloseToWhite(rgbColor) ? 'rgba(255, 220, 200, 0.5)' : `rgba(${rgbColor}, 0.5)`);
             button.backgroundColor.style.backgroundColor = rgbColorOpacity;
@@ -97,6 +103,41 @@ export function changeLight(context) {
             button.backgroundColor.style.borderColor = 'var(--primary-text-color)';
         }
     });
+}
+
+// Repaint numbered display entities in place. PIR changes additionally use the
+// existing ordering/layout path, but ordinary entity changes avoid the forced
+// width measurements of a complete horizontal-stack render.
+export function refreshHorizontalButtonsState(context, previousHass) {
+    if (context.cardType !== 'horizontal-buttons-stack' ||
+        !context.elements?.buttons?.length ||
+        !previousHass?.states ||
+        !context._hass?.states) {
+        return false;
+    }
+
+    let displayChanged = false;
+    let orderChanged = false;
+
+    for (const button of context.elements.buttons) {
+        if (button.lightEntity &&
+            previousHass.states[button.lightEntity] !== context._hass.states[button.lightEntity]) {
+            displayChanged = true;
+        }
+        if (context.config.auto_order && button.pirSensor &&
+            previousHass.states[button.pirSensor] !== context._hass.states[button.pirSensor]) {
+            orderChanged = true;
+        }
+    }
+
+    if (displayChanged) changeLight(context);
+    if (orderChanged) {
+        sortButtons(context);
+        placeButtons(context);
+        changeStatus(context);
+    }
+
+    return displayChanged || orderChanged;
 }
 export function changeConfig(context) {
     context.elements.buttons.forEach((button) => {

@@ -1,4 +1,4 @@
-import { changeConfig, changeEditor, changeLight, changeStatus, changeStyle, placeButtons, sortButtons } from './changes.js';
+import { changeConfig, changeEditor, changeLight, changeStatus, changeStyle, placeButtons, refreshHorizontalButtonsState, sortButtons } from './changes.js';
 import { createStructure } from './create.js';
 import { syncButtonHighlightListener } from './highlight.js';
 import { configChanged } from "../../tools/utils.js";
@@ -18,3 +18,5 @@ export function handleHorizontalButtonsStack(context) {
     // Last, so the button list it walks is the one placeButtons just settled.
     syncButtonHighlightListener(context);
 }
+
+export { refreshHorizontalButtonsState };

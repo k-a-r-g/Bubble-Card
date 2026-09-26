@@ -28,7 +28,10 @@ jest.unstable_mockModule('../cards/sub-buttons/index.js', () => ({ handleSubButt
 jest.unstable_mockModule('../cards/separator/index.js', () => ({ handleSeparator: jest.fn() }));
 jest.unstable_mockModule('../cards/cover/index.js', () => ({ handleCover: jest.fn() }));
 jest.unstable_mockModule('../cards/empty-column/index.js', () => ({ handleEmptyColumn: jest.fn() }));
-jest.unstable_mockModule('../cards/horizontal-buttons-stack/index.js', () => ({ handleHorizontalButtonsStack: jest.fn() }));
+jest.unstable_mockModule('../cards/horizontal-buttons-stack/index.js', () => ({
+    handleHorizontalButtonsStack: jest.fn(),
+    refreshHorizontalButtonsState: jest.fn(),
+}));
 jest.unstable_mockModule('../cards/calendar/index.js', () => ({ handleCalendar: jest.fn() }));
 jest.unstable_mockModule('../cards/media-player/index.js', () => ({ handleMediaPlayer: jest.fn() }));
 jest.unstable_mockModule('../cards/select/index.js', () => ({ handleSelect: jest.fn() }));

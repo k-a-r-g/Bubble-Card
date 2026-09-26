@@ -26,7 +26,7 @@ import { handleSubButtons } from './cards/sub-buttons/index.js';
 import { handleSeparator } from './cards/separator/index.js';
 import { handleCover } from './cards/cover/index.js';
 import { handleEmptyColumn } from './cards/empty-column/index.js';
-import { handleHorizontalButtonsStack } from './cards/horizontal-buttons-stack/index.js';
+import { handleHorizontalButtonsStack, refreshHorizontalButtonsState } from './cards/horizontal-buttons-stack/index.js';
 import { hasButtonConfig } from './cards/horizontal-buttons-stack/config.js';
 import { releaseButtonHighlightListener } from './cards/horizontal-buttons-stack/highlight.js';
 import { runModuleTeardowns } from './tools/module-teardown.js';
@@ -349,6 +349,7 @@ class BubbleCard extends HTMLElement {
       updateThemeBackgroundColor();
       createBubbleDefaultColor();
     }
+    const previousHass = this._hass;
     this._hass = hass;
 
     // An off-screen preview keeps the newest hass and pays nothing else. The
@@ -362,6 +363,17 @@ class BubbleCard extends HTMLElement {
     // flush progressively once the open settles.
     if (shouldHoldDashboardHassUpdate(this)) {
       return;
+    }
+
+    // Horizontal-stack entity feedback can update its existing DOM directly.
+    // This keeps state colors immediate without making every numbered entity
+    // change rebuild and remeasure the complete card.
+    if (this.config?.card_type === 'horizontal-buttons-stack') {
+      try {
+        refreshHorizontalButtonsState(this, previousHass);
+      } catch (e) {
+        console.error('Bubble Card: Error refreshing horizontal button state', e);
+      }
     }
 
     // Nothing this card was built from has moved, so rendering it again would

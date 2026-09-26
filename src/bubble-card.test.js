@@ -41,7 +41,11 @@ jest.unstable_mockModule('./cards/sub-buttons/index.js', () => ({ handleSubButto
 jest.unstable_mockModule('./cards/separator/index.js', () => ({ handleSeparator: jest.fn() }));
 jest.unstable_mockModule('./cards/cover/index.js', () => ({ handleCover: jest.fn() }));
 jest.unstable_mockModule('./cards/empty-column/index.js', () => ({ handleEmptyColumn: jest.fn() }));
-jest.unstable_mockModule('./cards/horizontal-buttons-stack/index.js', () => ({ handleHorizontalButtonsStack: jest.fn() }));
+const refreshHorizontalButtonsState = jest.fn();
+jest.unstable_mockModule('./cards/horizontal-buttons-stack/index.js', () => ({
+    handleHorizontalButtonsStack: jest.fn(),
+    refreshHorizontalButtonsState,
+}));
 jest.unstable_mockModule('./cards/calendar/index.js', () => ({ handleCalendar: jest.fn() }));
 jest.unstable_mockModule('./cards/media-player/index.js', () => ({ handleMediaPlayer: jest.fn() }));
 jest.unstable_mockModule('./cards/select/index.js', () => ({ handleSelect: jest.fn() }));
@@ -270,6 +274,19 @@ describe('BubbleCard hass render coalescing', () => {
         card.hass = movingHass();
 
         expect(handleButton).toHaveBeenCalledTimes(1);
+    });
+
+    test('offers the previous hass to the lightweight horizontal-state refresh', () => {
+        const card = createCard({ card_type: 'horizontal-buttons-stack' });
+        card.isConnected = true;
+        const first = movingHass();
+        const second = movingHass();
+
+        card.hass = first;
+        card.hass = second;
+
+        expect(refreshHorizontalButtonsState).toHaveBeenLastCalledWith(card, first);
+        expect(card._hass).toBe(second);
     });
 
     test('renders once for a burst instead of once per state change', () => {

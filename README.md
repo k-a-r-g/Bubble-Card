@@ -330,6 +330,18 @@ Every numbered button can use the same Home Assistant-style tap, double-tap and 
 
 `N_entity` remains independent from the action configuration: it controls the button's state/color display and is used as the default action entity when an action has no explicit target. An entity or target inside an action does not replace `N_entity` for display purposes.
 
+Buttons with an `N_entity` expose `is-on` and `is-off` CSS classes. Prefer these classes for state-based icon styling because they update without re-evaluating a JavaScript style template or rebuilding the complete horizontal stack:
+
+```yaml
+styles: |
+  .bubble-button-1 > .bubble-icon {
+    color: var(--primary-text-color) !important;
+  }
+  .bubble-button-1.is-on > .bubble-icon {
+    color: var(--accent-color) !important;
+  }
+```
+
 > [!NOTE]
 > Configuring `double_tap_action` delays a normal tap by 200 ms so that Bubble Card can distinguish a single tap from a double tap. Set it to `none` or omit it when that delay is not wanted.
 

@@ -90,7 +90,7 @@ jest.unstable_mockModule('../../tools/tap-actions.js', () => ({
 }));
 
 const { createStructure } = await import('./create.js');
-const { changeConfig, placeButtons, sortButtons } = await import('./changes.js');
+const { changeConfig, placeButtons, refreshHorizontalButtonsState, sortButtons } = await import('./changes.js');
 
 // Widths the buttons report once they are laid out, in creation order.
 const BUTTON_WIDTHS = [100, 80, 60, 40];
@@ -268,6 +268,78 @@ describe('changeConfig adding a button to a live stack', () => {
 
         expect(removeActions).toHaveBeenCalledWith(button);
         expect(button.link).toBe('#kitchen');
+    });
+});
+
+describe('lightweight state refresh', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        const values = new Map();
+        global.localStorage = {
+            getItem: (key) => (values.has(key) ? values.get(key) : null),
+            setItem: (key, value) => { values.set(key, value); },
+        };
+        global.location = { hash: '', pathname: '/dashboard' };
+        global.window = { addEventListener: jest.fn(), location: global.location };
+    });
+
+    test('repaints a numbered entity without remeasuring the button row', () => {
+        const context = buildContext();
+        context.config['1_entity'] = 'light.kitchen';
+        createStructure(context);
+        const button = context.elements.buttons[0];
+        button.style.transform = 'translateX(17px)';
+        context.elements.cardContainer.style.width = '222px';
+
+        const off = { state: 'off', attributes: {} };
+        context._hass = { states: { 'light.kitchen': { state: 'on', attributes: {} } } };
+
+        expect(refreshHorizontalButtonsState(context, {
+            states: { 'light.kitchen': off },
+        })).toBe(true);
+        expect(button.classList.contains('is-on')).toBe(true);
+        expect(button.classList.contains('is-off')).toBe(false);
+        expect(button.backgroundColor.style.backgroundColor).toBe('rgba(255, 255, 255, 0.5)');
+        expect(button.style.transform).toBe('translateX(17px)');
+        expect(context.elements.cardContainer.style.width).toBe('222px');
+    });
+
+    test('does nothing when none of its numbered entities changed', () => {
+        const context = buildContext();
+        context.config['1_entity'] = 'light.kitchen';
+        createStructure(context);
+        const shared = { state: 'off', attributes: {} };
+        context._hass = { states: { 'light.kitchen': shared } };
+
+        expect(refreshHorizontalButtonsState(context, {
+            states: { 'light.kitchen': shared },
+        })).toBe(false);
+    });
+
+    test('still reorders and lays out the row when an auto-order sensor changes', () => {
+        const context = buildContext();
+        context.config.auto_order = true;
+        context.config['1_pir_sensor'] = 'binary_sensor.kitchen';
+        context.config['2_pir_sensor'] = 'binary_sensor.living_room';
+        createStructure(context);
+        context.elements.buttons[0].offsetWidth = 100;
+        context.elements.buttons[1].offsetWidth = 80;
+
+        const kitchen = { state: 'off', last_updated: '2026-01-01T00:00:00Z', attributes: {} };
+        const livingBefore = { state: 'off', last_updated: '2026-01-01T00:00:01Z', attributes: {} };
+        const livingAfter = { state: 'on', last_updated: '2026-01-01T00:00:02Z', attributes: {} };
+        context._hass = { states: {
+            'binary_sensor.kitchen': kitchen,
+            'binary_sensor.living_room': livingAfter,
+        } };
+
+        expect(refreshHorizontalButtonsState(context, { states: {
+            'binary_sensor.kitchen': kitchen,
+            'binary_sensor.living_room': livingBefore,
+        } })).toBe(true);
+        expect(context.elements.buttons[0].pirSensor).toBe('binary_sensor.living_room');
+        expect(context.elements.buttons[0].style.transform).toBe('translateX(0px)');
+        expect(context.elements.buttons[1].style.transform).toBe('translateX(92px)');
     });
 });
 
