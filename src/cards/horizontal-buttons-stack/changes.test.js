@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 function createMockClassList(initialClasses = []) {
     const classes = new Set(initialClasses);
@@ -90,7 +90,7 @@ jest.unstable_mockModule('../../tools/tap-actions.js', () => ({
 }));
 
 const { createStructure } = await import('./create.js');
-const { changeConfig, placeButtons, refreshHorizontalButtonsState, sortButtons } = await import('./changes.js');
+const { changeConfig, changeLight, placeButtons, refreshHorizontalButtonsState, sortButtons } = await import('./changes.js');
 
 // Widths the buttons report once they are laid out, in creation order.
 const BUTTON_WIDTHS = [100, 80, 60, 40];
@@ -233,6 +233,7 @@ describe('changeConfig adding a button to a live stack', () => {
         expect(button.lightEntity).toBe('light.all_lights');
         expect(button.storageKey).toBe('button-3');
         expect(addActions).toHaveBeenCalledWith(button, action, 'light.all_lights');
+        expect(button.listeners['hass-action']).toHaveLength(1);
     });
 
     test('keeps a button when its link is removed but its action remains', () => {
@@ -274,6 +275,7 @@ describe('changeConfig adding a button to a live stack', () => {
 describe('lightweight state refresh', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.useFakeTimers();
         const values = new Map();
         global.localStorage = {
             getItem: (key) => (values.has(key) ? values.get(key) : null),
@@ -282,6 +284,33 @@ describe('lightweight state refresh', () => {
         global.location = { hash: '', pathname: '/dashboard' };
         global.window = { addEventListener: jest.fn(), location: global.location };
     });
+
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
+    function actionButtonContext() {
+        const context = buildContext();
+        context.config['1_entity'] = 'light.kitchen';
+        context.config['1_button_action'] = { tap_action: { action: 'toggle' } };
+        createStructure(context);
+        context._hass = { states: { 'light.kitchen': { state: 'off', attributes: {} } } };
+        changeConfig(context);
+        changeLight(context);
+        return { context, button: context.elements.buttons[0] };
+    }
+
+    function dispatchToggle(button, actionConfig = { action: 'toggle' }) {
+        const listener = button.listeners['hass-action'][0];
+        listener({ detail: {
+            action: 'tap',
+            config: {
+                entity: 'light.kitchen',
+                entity_id: 'light.kitchen',
+                tap_action: actionConfig,
+            },
+        } });
+    }
 
     test('repaints a numbered entity without remeasuring the button row', () => {
         const context = buildContext();
@@ -340,6 +369,63 @@ describe('lightweight state refresh', () => {
         expect(context.elements.buttons[0].pirSensor).toBe('binary_sensor.living_room');
         expect(context.elements.buttons[0].style.transform).toBe('translateX(0px)');
         expect(context.elements.buttons[1].style.transform).toBe('translateX(92px)');
+    });
+
+    test('shows a matching toggle immediately and keeps the confirmed state', () => {
+        const { context, button } = actionButtonContext();
+
+        dispatchToggle(button);
+
+        expect(button.classList.contains('is-on')).toBe(true);
+        expect(button.classList.contains('is-off')).toBe(false);
+        expect(jest.getTimerCount()).toBe(1);
+
+        const previousHass = context._hass;
+        context._hass = { states: { 'light.kitchen': { state: 'on', attributes: {} } } };
+        refreshHorizontalButtonsState(context, previousHass);
+
+        expect(button.classList.contains('is-on')).toBe(true);
+        expect(jest.getTimerCount()).toBe(0);
+        jest.advanceTimersByTime(2000);
+        expect(button.classList.contains('is-on')).toBe(true);
+    });
+
+    test('rolls an unconfirmed optimistic toggle back after two seconds', () => {
+        const { button } = actionButtonContext();
+
+        dispatchToggle(button);
+        expect(button.classList.contains('is-on')).toBe(true);
+
+        jest.advanceTimersByTime(2000);
+
+        expect(button.classList.contains('is-on')).toBe(false);
+        expect(button.classList.contains('is-off')).toBe(true);
+    });
+
+    test('does not predict a toggle targeting another entity', () => {
+        const { button } = actionButtonContext();
+
+        dispatchToggle(button, {
+            action: 'toggle',
+            target: { entity_id: 'light.living_room' },
+        });
+
+        expect(button.classList.contains('is-on')).toBe(false);
+        expect(button.classList.contains('is-off')).toBe(true);
+        expect(jest.getTimerCount()).toBe(0);
+    });
+
+    test('waits for confirmation before showing a confirmed toggle action', () => {
+        const { button } = actionButtonContext();
+
+        dispatchToggle(button, {
+            action: 'toggle',
+            confirmation: { text: 'Toggle this light?' },
+        });
+
+        expect(button.classList.contains('is-on')).toBe(false);
+        expect(button.classList.contains('is-off')).toBe(true);
+        expect(jest.getTimerCount()).toBe(0);
     });
 });
 

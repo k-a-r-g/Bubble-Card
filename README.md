@@ -342,6 +342,8 @@ styles: |
   }
 ```
 
+A `toggle` action aimed at the same `N_entity` updates these visual classes immediately, then reconciles them with the state reported by Home Assistant. If Home Assistant does not confirm the expected state within two seconds, the visual state rolls back. Actions with a confirmation dialog, another target, or another action type always wait for Home Assistant instead.
+
 > [!NOTE]
 > Configuring `double_tap_action` delays a normal tap by 200 ms so that Bubble Card can distinguish a single tap from a double tap. Set it to `none` or omit it when that delay is not wanted.
 

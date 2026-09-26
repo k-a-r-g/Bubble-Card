@@ -8,6 +8,72 @@ import { handleCustomStyles } from '../../tools/style-processor.js';
 import { addActions, removeActions } from '../../tools/tap-actions.js';
 
 const BUTTON_MARGIN = 12;
+const OPTIMISTIC_TOGGLE_TIMEOUT = 2000;
+
+function clearOptimisticToggle(button) {
+    if (button.optimisticToggleTimer) {
+        clearTimeout(button.optimisticToggleTimer);
+        button.optimisticToggleTimer = null;
+    }
+    button.optimisticToggleState = null;
+}
+
+function displayedButtonState(button, confirmedState) {
+    const expectedState = button.optimisticToggleState;
+    if (!expectedState) return confirmedState;
+    if (confirmedState === expectedState) {
+        clearOptimisticToggle(button);
+        return confirmedState;
+    }
+    return expectedState;
+}
+
+function entityTargetMatches(target, entity) {
+    if (Array.isArray(target)) return target.includes(entity);
+    return target === entity;
+}
+
+function actionTargetsDisplayEntity(eventConfig, actionConfig, entity) {
+    if (!entity) return false;
+    if (actionConfig.target) {
+        return entityTargetMatches(actionConfig.target.entity_id, entity);
+    }
+    if (actionConfig.entity_id !== undefined) {
+        return entityTargetMatches(actionConfig.entity_id, entity);
+    }
+    return entityTargetMatches(eventConfig.entity_id ?? eventConfig.entity, entity);
+}
+
+function beginOptimisticToggle(context, button, detail) {
+    const gesture = detail?.action;
+    if (!['tap', 'double_tap', 'hold'].includes(gesture)) return false;
+
+    const eventConfig = detail.config;
+    const actionConfig = eventConfig?.[`${gesture}_action`];
+    if (actionConfig?.action !== 'toggle' || actionConfig.confirmation ||
+        !actionTargetsDisplayEntity(eventConfig, actionConfig, button.lightEntity)) {
+        return false;
+    }
+
+    const confirmedState = context._hass?.states?.[button.lightEntity]?.state;
+    const displayedState = button.optimisticToggleState ?? confirmedState;
+    if (displayedState !== 'on' && displayedState !== 'off') return false;
+
+    clearOptimisticToggle(button);
+    button.optimisticToggleState = displayedState === 'on' ? 'off' : 'on';
+    button.optimisticToggleTimer = setTimeout(() => {
+        clearOptimisticToggle(button);
+        changeLight(context);
+    }, OPTIMISTIC_TOGGLE_TIMEOUT);
+    changeLight(context);
+    return true;
+}
+
+function ensureOptimisticToggleListener(context, button) {
+    if (button.optimisticToggleListener) return;
+    button.optimisticToggleListener = (event) => beginOptimisticToggle(context, button, event.detail);
+    button.addEventListener('hass-action', button.optimisticToggleListener);
+}
 
 export function sortButtons(context) {
     if (!context.config.auto_order) return;
@@ -83,7 +149,7 @@ export function changeLight(context) {
     context.elements.buttons.forEach((button) => {
         const entityData = context._hass?.states?.[button.lightEntity];
         const rgbColor = entityData?.attributes.rgb_color;
-        const state = entityData?.state;
+        const state = displayedButtonState(button, entityData?.state);
 
         // Expose the display state directly to CSS so an icon can react
         // without a JavaScript style template forcing a complete card render.
@@ -150,6 +216,7 @@ export function changeConfig(context) {
         const buttonAction = context.config[`${index}_button_action`];
         const hadButtonAction = button.buttonAction !== undefined;
         const buttonActionSignature = JSON.stringify({ buttonAction, entity });
+        const previousEntity = button.lightEntity;
 
         button.pirSensor = sensor;
         button.lightEntity = entity;
@@ -158,19 +225,23 @@ export function changeConfig(context) {
         button.storageKey = getButtonWidthStorageKey(link, index);
 
         if (buttonAction !== undefined) {
+            ensureOptimisticToggleListener(context, button);
             if (button.buttonActionSignature !== buttonActionSignature) {
+                clearOptimisticToggle(button);
                 if (hadButtonAction) {
                     removeActions(button);
                 }
                 addActions(button, buttonAction, entity);
             }
         } else if (hadButtonAction) {
+            clearOptimisticToggle(button);
             removeActions(button);
             if (!button.haRipple) {
                 button.haRipple = createElement('ha-ripple');
                 button.appendChild(button.haRipple);
             }
         }
+        if (previousEntity !== entity) clearOptimisticToggle(button);
         button.buttonActionSignature = buttonActionSignature;
 
         if (name) {
@@ -187,6 +258,7 @@ export function changeConfig(context) {
         }
 
         if (!hasButtonConfig(context.config, index)) {
+            clearOptimisticToggle(button);
             button.remove();
             context.elements.buttons = context.elements.buttons.filter((btn) => btn !== button);
             // Renumber by config slot, never by position in the list. index is
@@ -209,7 +281,8 @@ export function changeConfig(context) {
     for (const index of getConfiguredButtonIndexes(context.config)) {
         const existingButton = context.elements.buttons.find(button => button.index === index);
         if (!existingButton) {
-            createButton(context, index);
+            const button = createButton(context, index);
+            if (button.buttonAction !== undefined) ensureOptimisticToggleListener(context, button);
         }
     }
 }
