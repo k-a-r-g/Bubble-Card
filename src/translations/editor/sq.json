@@ -9,6 +9,7 @@
       "styling_options": "Opsionet e stilit",
       "styling_layout_options": "Opsionet e stilit dhe të faqosjes",
       "hidden": "I fshehur",
+      "disabled": "Çaktivizuar",
       "move_up": "Zhvendos lart",
       "move_down": "Zhvendos poshtë",
       "no_fields": "Nuk ka fusha të përcaktuara"
@@ -277,6 +278,8 @@
       "settings": "Cilësimet e pop-up-it",
       "auto_close": "Mbyllje automatike në milisekonda (p.sh. 15000)",
       "close_outside": "Mbyll pop-up-in duke klikuar jashtë tij (nevojitet një rifreskim)",
+      "slide_to_close": "Rrëshqit për ta mbyllur",
+      "slide_to_close_header": "Vetëm nga koka",
       "close_on_click": "Mbyll pop-up-in pas çdo klikimi ose prekjeje",
       "background_update": "Përditëso kartat në sfond (nuk rekomandohet)",
       "background_update_title": "Përditësimet në sfond",

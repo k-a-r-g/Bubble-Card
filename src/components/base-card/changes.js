@@ -17,7 +17,7 @@ import {
 } from '../../tools/utils.js';
 import { resolveTemplate } from '../../tools/render-template.js';
 import { resolveStateContent } from '../../tools/state-content.js';
-import { renderStateLine, stateContentTimestamps } from './state-line.js';
+import { renderStateLine, stateContentTimestamps, stateLineFormatting, stateLineFormattingChanged } from './state-line.js';
 import { applyScrollingEffect } from '../../tools/text-scrolling.js';
 import { getIcon, getImage, getIconColor } from '../../tools/icon.js';
 import { getClimateColor } from '../../cards/climate/helpers.js';
@@ -81,7 +81,8 @@ export function changeState(context, force = false) {
         previousConfig.showIcon !== showIcon ||
         previousConfig.contentKey !== contentKey ||
         previousConfig.templateVersion !== templateVersion ||
-        previousConfig.scrollingEffect !== scrollingEffect
+        previousConfig.scrollingEffect !== scrollingEffect ||
+        stateLineFormattingChanged(previousConfig.formatting, context._hass, entity)
     );
 
     // The beat is armed before the guard below, because the guard exists for the
@@ -166,6 +167,7 @@ export function changeState(context, force = false) {
         contentKey,
         templateVersion,
         scrollingEffect,
+        formatting: stateLineFormatting(context._hass, entity),
     };
 }
 

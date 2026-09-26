@@ -127,6 +127,22 @@ jest.unstable_mockModule('../../tools/tap-actions.js', () => ({
 
 const { changeEvents, changeEventList } = await import('./changes.js');
 
+// Every fixture below places its events relative to `new Date()`, and the card
+// reads that same clock, so a real one made these tests depend on the hour they
+// ran at. An event ending an hour later crossed midnight in the evening, came
+// back from the multi-day expansion as two occurrences, and the one of the day
+// to come no longer counted as started. The clock is frozen on a mid June
+// afternoon, far from both day boundaries and from any daylight saving change.
+const fixedNow = new Date(2026, 5, 17, 14, 0, 0);
+
+beforeEach(() => {
+    jest.useFakeTimers({ now: fixedNow });
+});
+
+afterEach(() => {
+    jest.useRealTimers();
+});
+
 const eventAction = {
     tap_action: { action: 'more-info' },
     double_tap_action: { action: 'none' },
@@ -171,12 +187,6 @@ const actionCallsFor = (element) => addActions.mock.calls.filter(call => call[0]
 describe('calendar "No events" placeholder', () => {
     beforeEach(() => {
         addActions.mockClear();
-        jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-        jest.clearAllTimers();
-        jest.useRealTimers();
     });
 
     // The placeholder carries no location, and `undefined !== null` was true, so
@@ -216,12 +226,6 @@ describe('calendar "No events" placeholder', () => {
 describe('calendar event location', () => {
     beforeEach(() => {
         addActions.mockClear();
-        jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-        jest.clearAllTimers();
-        jest.useRealTimers();
     });
 
     test('renders the location of a real event when show_place is enabled', async () => {
@@ -267,12 +271,6 @@ describe('calendar event location', () => {
 describe('calendar event actions', () => {
     beforeEach(() => {
         addActions.mockClear();
-        jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-        jest.clearAllTimers();
-        jest.useRealTimers();
     });
 
     test('wires the configured event actions on a real event line', async () => {
@@ -476,6 +474,21 @@ describe('calendar limit', () => {
         expect(byDay(context).map(entry => entry.names)).toEqual([['b'], ['c']]);
     });
 
+    // The same event an hour before midnight covers two days, and the day to
+    // come has not started yet, so only the day under way is hidden
+    test('keeps the day to come of an event running past midnight', async () => {
+        jest.setSystemTime(new Date(2026, 5, 17, 23, 30, 0));
+        const started = eventAt('running', 0, 0);
+        started.end = { dateTime: new Date(Date.now() + 3600 * 1000).toISOString() };
+        const context = listContext({ limit: 2, show_started_events: false }, [
+            started, eventAt('b', 1), eventAt('c', 2),
+        ]);
+
+        await changeEventList(context);
+
+        expect(byDay(context).map(entry => entry.names)).toEqual([['running', 'b'], ['c']]);
+    });
+
     test('tags every event with its own day', async () => {
         const context = listContext({}, [allDayEvent('holiday', 0, 3)]);
 
@@ -488,12 +501,6 @@ describe('calendar limit', () => {
 describe('calendar limit on the rendered card', () => {
     beforeEach(() => {
         addActions.mockClear();
-        jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-        jest.clearAllTimers();
-        jest.useRealTimers();
     });
 
     // End to end: the day the grouping reads back must be the one the cap used

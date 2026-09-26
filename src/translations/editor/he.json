@@ -9,6 +9,7 @@
       "styling_options": "אפשרויות עיצוב",
       "styling_layout_options": "אפשרויות עיצוב ופריסה",
       "hidden": "מוסתר",
+      "disabled": "מושבת",
       "move_up": "העברה למעלה",
       "move_down": "העברה למטה",
       "no_fields": "לא הוגדרו שדות"
@@ -277,6 +278,8 @@
       "settings": "הגדרות החלון הקופץ",
       "auto_close": "סגירה אוטומטית במילישניות (למשל 15000)",
       "close_outside": "סגירת החלון הקופץ בלחיצה מחוץ לו (נדרש רענון)",
+      "slide_to_close": "החלקה לסגירה",
+      "slide_to_close_header": "רק מהכותרת",
       "close_on_click": "סגירת החלון הקופץ אחרי כל לחיצה או הקשה",
       "background_update": "עדכון כרטיסים ברקע (לא מומלץ)",
       "background_update_title": "עדכונים ברקע",

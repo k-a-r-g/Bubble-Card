@@ -9,6 +9,7 @@
       "styling_options": "Možnosti štýlu",
       "styling_layout_options": "Možnosti štýlu a rozloženia",
       "hidden": "Skryté",
+      "disabled": "Vypnuté",
       "move_up": "Presunúť nahor",
       "move_down": "Presunúť nadol",
       "no_fields": "Nie sú definované žiadne polia"
@@ -277,6 +278,8 @@
       "settings": "Nastavenia pop-upu",
       "auto_close": "Automaticky zatvoriť po milisekundách (napr. 15000)",
       "close_outside": "Zatvoriť pop-up kliknutím mimo neho (je potrebné obnovenie stránky)",
+      "slide_to_close": "Zatvorenie potiahnutím",
+      "slide_to_close_header": "Iba z hlavičky",
       "close_on_click": "Zatvoriť pop-up po akomkoľvek kliknutí alebo ťuknutí",
       "background_update": "Aktualizovať karty na pozadí (neodporúča sa)",
       "background_update_title": "Aktualizácie na pozadí",

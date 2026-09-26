@@ -128,36 +128,39 @@ function updateSubButtonContent(context, element, options) {
   }
 }
 
+// Walked section by section, and inside a section in config order, so the index
+// of a state here is the index of the button the card shows at that position,
+// which is what the README promises and what `subButtonIcon` already gives.
+// The previous walk read the ungrouped main buttons, then every group, and
+// never read the ungrouped bottom buttons at all (#2165).
 export function getSubButtonsStates(context) {
   const sectioned = ensureNewSubButtonsSchemaObject(context.config);
-  const main = Array.isArray(sectioned.main) ? sectioned.main : [];
-  const bottom = Array.isArray(sectioned.bottom) ? sectioned.bottom : [];
-
   const states = [];
-  
-  // Get states from main sub-buttons
-  main
-    .filter(item => item && !Array.isArray(item.group))
-    .forEach((subButton) => {
-      const entity = subButton.entity ?? context.config.entity;
-      const stateObj = context._hass.states[entity];
-      states.push(stateObj?.state ?? 'unknown');
+
+  const pushState = (subButton) => {
+    const entity = subButton.entity ?? context.config.entity;
+    const stateObj = context._hass.states[entity];
+    states.push(stateObj?.state ?? 'unknown');
+  };
+
+  // A sub-buttons card draws its bottom section only, and its editor refuses to
+  // write a main one (editor/sectioned.js), so a main section left over in YAML
+  // is not on screen and has no index to report.
+  const sections = context.config.card_type === 'sub-buttons' ? ['bottom'] : ['main', 'bottom'];
+
+  sections.forEach((section) => {
+    const items = Array.isArray(sectioned[section]) ? sectioned[section] : [];
+    items.forEach((item) => {
+      if (!item) return;
+      if (Array.isArray(item.group)) {
+        item.group.forEach((button) => {
+          if (button) pushState(button);
+        });
+        return;
+      }
+      pushState(item);
     });
-  
-  // Get states from buttons in groups
-  const allGroups = [
-    ...main.filter(item => item && Array.isArray(item.group)).map(g => g.group),
-    ...bottom.filter(item => item && Array.isArray(item.group)).map(g => g.group)
-  ];
-  allGroups.forEach((buttons) => {
-      buttons.forEach((button) => {
-        if (button) {
-          const entity = button.entity ?? context.config.entity;
-          const stateObj = context._hass.states[entity];
-          states.push(stateObj?.state ?? 'unknown');
-        }
-      });
-    });
+  });
 
   return states;
 }
@@ -195,60 +198,24 @@ export function changeSubButtons(context, subButtons = context.config.sub_button
   initializesubButtonIcon(context);
 }
 
-// To fix: Index issue with sub-buttons but use direct element references to avoid cloned icons #2103
-
-// function initializesubButtonIcon(context) {
-//   if (!Array.isArray(context.subButtonIcon)) {
-//     context.subButtonIcon = [];
-//   }
-
-//   const container = context.config.card_type === 'pop-up' ? context.popUp : context.content;
-  
-//   // Main buttons - use direct element references to avoid cloned icons
-//   container.querySelectorAll('.bubble-sub-button:not(.bubble-sub-button-group *)').forEach((subButtonElement) => {
-//     if (subButtonElement.icon) {
-//       context.subButtonIcon.push(subButtonElement.icon);
-//     }
-//   });
-  
-//   // Group buttons - use direct element references to avoid cloned icons
-//   if (context.elements && context.elements.groups) {
-//     Object.values(context.elements.groups).forEach(group => {
-//       if (group.container) {
-//         const groupButtons = group.container.querySelectorAll('.bubble-sub-button');
-//         groupButtons.forEach(subButtonElement => {
-//           if (subButtonElement.icon) {
-//             context.subButtonIcon.push(subButtonElement.icon);
-//           }
-//         });
-//       }
-//     });
-//   }
-// }
-
-function initializesubButtonIcon(context) {
+// One query in DOM order is the whole list, because the container already
+// holds the icons of every group it renders, including the implicit
+// `g_main_auto` and `g_bottom_auto` a card gets as soon as it has a bottom
+// section. Appending the groups on top of it, as this used to, added a full
+// round of the same icons on every pass and grew the array without limit.
+export function initializesubButtonIcon(context) {
   if (!Array.isArray(context.subButtonIcon)) {
     context.subButtonIcon = [];
   }
 
   const container = context.config.card_type === 'pop-up' ? context.popUp : context.content;
-  
-  // Main buttons
-  container.querySelectorAll('.bubble-sub-button-icon').forEach((iconElement, index) => {
+  const icons = container ? container.querySelectorAll('.bubble-sub-button-icon') : [];
+
+  // Written in place rather than replaced, so a pass costs no allocation.
+  context.subButtonIcon.length = icons.length;
+  icons.forEach((iconElement, index) => {
     context.subButtonIcon[index] = iconElement;
   });
-  
-  // Group buttons
-  if (context.elements && context.elements.groups) {
-    Object.values(context.elements.groups).forEach(group => {
-      if (group.container) {
-        const groupIcons = group.container.querySelectorAll('.bubble-sub-button-icon');
-        groupIcons.forEach(iconElement => {
-          context.subButtonIcon.push(iconElement);
-        });
-      }
-    });
-  }
 }
 
 // Handle updating buttons within groups

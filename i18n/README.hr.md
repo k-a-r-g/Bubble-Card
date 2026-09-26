@@ -178,6 +178,7 @@ Ova kartica vam omogućuje stvaranje skočnog prozora s bilo kojim sadržajem. S
 | `auto_close` | string | Neobavezno | Vremensko ograničenje u milisekundama (npr. `10000` za 10 s) | Automatski zatvara skočni prozor nakon isteka vremena |
 | `close_on_click` | boolean | Neobavezno | `true` ili `false` (zadano) | Automatski zatvara skočni prozor nakon bilo koje interakcije |
 | `close_by_clicking_outside` | boolean | Neobavezno | `true` (zadano) ili `false` | Zatvara skočni prozor klikom izvan njega |
+| `slide_to_close` | boolean ili string | Neobavezno | `true` (zadano), `header` ili `false` | Zatvara skočni prozor povlačenjem prema dolje |
 | `width_desktop` | string | Neobavezno | Bilo koja CSS vrijednost | Širina na računalu (`100%` prema zadanim postavkama na mobilnim uređajima) |
 | `margin` | string | Neobavezno | Bilo koja CSS vrijednost | Koristite ovo **samo** ako vaš skočni prozor nije dobro centriran na mobilnim uređajima (npr. `13px`) |
 | `margin_top_mobile` | string | Neobavezno | Bilo koja CSS vrijednost | Gornja margina na mobilnim uređajima (npr. `-56px` ako je vaše zaglavlje skriveno) |

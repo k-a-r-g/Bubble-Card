@@ -178,6 +178,7 @@ See kaart võimaldab luua hüpikakna suvalise sisuga. Iga hüpikaken on **vaikim
 | `auto_close` | string | Valikuline | Ajapiirang millisekundites (nt `10000` 10 sekundi jaoks) | Sulgeb hüpikakna automaatselt pärast ajapiirangut |
 | `close_on_click` | boolean | Valikuline | `true` või `false` (vaikimisi) | Sulgeb hüpikakna automaatselt pärast igasugust interaktsiooni |
 | `close_by_clicking_outside` | boolean | Valikuline | `true` (vaikimisi) või `false` | Sulgeb hüpikakna, kui klõpsata väljaspool seda |
+| `slide_to_close` | boolean või string | Valikuline | `true` (vaikimisi), `header` või `false` | Sulgeb hüpikakna, kui seda alla libistada |
 | `width_desktop` | string | Valikuline | Iga CSS väärtus | Laius arvutis (`100%` vaikimisi mobiilis) |
 | `margin` | string | Valikuline | Iga CSS väärtus | Kasuta seda **ainult** siis, kui su hüpikaken pole mobiilis hästi tsentreeritud (nt `13px`) |
 | `margin_top_mobile` | string | Valikuline | Iga CSS väärtus | Ülemine varu mobiilis (nt `-56px`, kui su päis on peidetud) |

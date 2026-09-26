@@ -166,6 +166,102 @@ describe('deciding on what the card declares', () => {
             card._hass = next;
             expect(shouldSkipRender(card)).toBe(false);
         });
+
+    // A list of keys kept missing some. The formatters arrive on their own once
+    // the translations are loaded, so a card drawn before them went on writing
+    // the raw state.
+    test.each(['formatEntityState', 'localize', 'selectedTheme', 'floors', 'services', 'panels', 'connected'])(
+        'renders when hass.%s changes, a key no list ever held', async (key) => {
+            const { shouldSkipRender } = await load();
+            const on = state('on');
+            const card = await primed({ card_type: 'button', entity: 'light.a' }, makeHass({ 'light.a': on }));
+            const next = makeHass({ 'light.a': on });
+            next[key] = { replaced: true };
+            card._hass = next;
+            expect(shouldSkipRender(card)).toBe(false);
+        });
+
+    test('renders when a key disappears from hass', async () => {
+        const { shouldSkipRender } = await load();
+        const on = state('on');
+        const card = await primed({ card_type: 'button', entity: 'light.a' }, makeHass({ 'light.a': on }, { extension: {} }));
+        card._hass = makeHass({ 'light.a': on });
+        expect(shouldSkipRender(card)).toBe(false);
+    });
+
+    // One comparison per hass object, whichever card meets it first.
+    test('shares one answer between every card', async () => {
+        const { noteRender, shouldSkipRender } = await load();
+        const on = state('on');
+        const first = makeHass({ 'light.a': on, 'light.b': on });
+        const a = makeCard({ card_type: 'button', entity: 'light.a' }, first);
+        const b = makeCard({ card_type: 'button', entity: 'light.b' }, first);
+        noteRender(a);
+        noteRender(b);
+
+        const translated = makeHass({ 'light.a': on, 'light.b': on }, { formatEntityState: () => 'On' });
+        a._hass = translated;
+        b._hass = translated;
+        expect(shouldSkipRender(a)).toBe(false);
+        expect(shouldSkipRender(b)).toBe(false);
+
+        noteRender(a);
+        noteRender(b);
+        const statesOnly = { ...translated, states: { 'light.a': on, 'light.b': on, 'sensor.x': state('1') } };
+        a._hass = statesOnly;
+        b._hass = statesOnly;
+        expect(shouldSkipRender(a)).toBe(true);
+        expect(shouldSkipRender(b)).toBe(true);
+    });
+});
+
+// Everything arrives late and in any order while a dashboard starts, including
+// what a module reads outside hass, where no comparison can see it.
+describe('while a dashboard starts', () => {
+    test('never skips during the first ten seconds after the connection', async () => {
+        const { shouldSkipRender, noteRender } = await load();
+        const on = state('on');
+        const card = await primed({ card_type: 'button', entity: 'light.a' }, makeHass({ 'light.a': on }, { connected: true }));
+
+        now += 5000;
+        card._hass = makeHass({ 'light.a': on }, { connected: true });
+        expect(shouldSkipRender(card)).toBe(false);
+        noteRender(card);
+
+        now += 6000;
+        card._hass = makeHass({ 'light.a': on }, { connected: true });
+        expect(shouldSkipRender(card)).toBe(true);
+    });
+
+    test('opens the window again after a reconnection', async () => {
+        const { shouldSkipRender, noteRender } = await load();
+        const on = state('on');
+        const card = await primed({ card_type: 'button', entity: 'light.a' }, makeHass({ 'light.a': on }, { connected: true }));
+
+        now += 12000;
+        noteRender(card);
+        card._hass = makeHass({ 'light.a': on }, { connected: true });
+        expect(shouldSkipRender(card)).toBe(true);
+
+        card._hass = makeHass({ 'light.a': on }, { connected: false });
+        expect(shouldSkipRender(card)).toBe(false);
+        noteRender(card);
+
+        now += 1000;
+        card._hass = makeHass({ 'light.a': on }, { connected: true });
+        expect(shouldSkipRender(card)).toBe(false);
+        noteRender(card);
+
+        // Same keys as the tick before, and still inside the new window.
+        now += 5000;
+        card._hass = makeHass({ 'light.a': on }, { connected: true });
+        expect(shouldSkipRender(card)).toBe(false);
+        noteRender(card);
+
+        now += 6000;
+        card._hass = makeHass({ 'light.a': on }, { connected: true });
+        expect(shouldSkipRender(card)).toBe(true);
+    });
 });
 
 // The card's own config never mentions these entities: the only way to know a

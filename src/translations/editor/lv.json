@@ -9,6 +9,7 @@
       "styling_options": "Stila opcijas",
       "styling_layout_options": "Stila un izkārtojuma opcijas",
       "hidden": "Paslēpts",
+      "disabled": "Atspējots",
       "move_up": "Pārvietot augšup",
       "move_down": "Pārvietot lejup",
       "no_fields": "Nav definētu lauku"
@@ -277,6 +278,8 @@
       "settings": "Uznirstošā loga iestatījumi",
       "auto_close": "Automātiska aizvēršana milisekundēs (piem., 15000)",
       "close_outside": "Aizvērt uznirstošo logu, noklikšķinot ārpus tā (nepieciešama lapas atsvaidzināšana)",
+      "slide_to_close": "Velciet, lai aizvērtu",
+      "slide_to_close_header": "Tikai no galvenes",
       "close_on_click": "Aizvērt uznirstošo logu pēc jebkura klikšķa vai pieskāriena",
       "background_update": "Atjaunināt kartītes fonā (nav ieteicams)",
       "background_update_title": "Atjaunināšana fonā",

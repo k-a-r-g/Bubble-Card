@@ -178,6 +178,7 @@ Ta kartica vam omogoča ustvarjanje pojavnega okna s poljubno vsebino. Vsako poj
 | `auto_close` | string | Neobvezno | Časovna omejitev v milisekundah (npr. `10000` za 10 s) | Samodejno zapri pojavno okno po preteku časovne omejitve |
 | `close_on_click` | boolean | Neobvezno | `true` ali `false` (privzeto) | Samodejno zapri pojavno okno po vsaki interakciji |
 | `close_by_clicking_outside` | boolean | Neobvezno | `true` (privzeto) ali `false` | Zapri pojavno okno s klikom zunaj njega |
+| `slide_to_close` | boolean ali string | Neobvezno | `true` (privzeto), `header` ali `false` | Zapri pojavno okno s potegom navzdol |
 | `width_desktop` | string | Neobvezno | Katera koli vrednost CSS | Širina na namizju (`100%` privzeto na mobilnih napravah) |
 | `margin` | string | Neobvezno | Katera koli vrednost CSS | Uporabite to **samo**, če vaše pojavno okno na mobilni napravi ni lepo poravnano na sredino (npr. `13px`) |
 | `margin_top_mobile` | string | Neobvezno | Katera koli vrednost CSS | Zgornji rob na mobilni napravi (npr. `-56px`, če je glava skrita) |

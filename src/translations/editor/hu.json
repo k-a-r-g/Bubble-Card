@@ -9,6 +9,7 @@
       "styling_options": "Stílusbeállítások",
       "styling_layout_options": "Stílus- és elrendezési beállítások",
       "hidden": "Rejtett",
+      "disabled": "Letiltva",
       "move_up": "Mozgatás felfelé",
       "move_down": "Mozgatás lefelé",
       "no_fields": "Nincsenek megadott mezők"
@@ -277,6 +278,8 @@
       "settings": "Pop-up beállításai",
       "auto_close": "Automatikus bezárás ezredmásodpercben (pl. 15000)",
       "close_outside": "Pop-up bezárása a rajta kívülre kattintással (frissítés szükséges)",
+      "slide_to_close": "Bezárás húzással",
+      "slide_to_close_header": "Csak a fejlécről",
       "close_on_click": "Pop-up bezárása bármely kattintás vagy koppintás után",
       "background_update": "Kártyák frissítése a háttérben (nem ajánlott)",
       "background_update_title": "Háttérfrissítések",

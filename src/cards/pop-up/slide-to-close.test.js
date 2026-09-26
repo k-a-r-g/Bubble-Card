@@ -793,3 +793,139 @@ describe('an upward drag that belongs to nothing', () => {
         expect(documentListeners.touchmove).toHaveLength(1);
     });
 });
+
+// custom:button-card stops the real touch on a card nested in it and hands its
+// parent a scripted copy (#2627). The copy's path starts at that parent, so a
+// map under the finger is missing from it. The shell sees the real touch go by
+// in the capture phase, and reads the copy on it.
+describe('a touch copied by a card on its way up', () => {
+    function realTouch(popUp, path, { identifier = 7, eventPhase = 3 } = {}) {
+        const event = touchEvent([{ y: 300 }], { path: [...path, popUp] });
+        event.touches[0].identifier = identifier;
+        return { ...event, isTrusted: true, eventPhase };
+    }
+
+    function copiedTouch(popUp, { identifier = 7 } = {}) {
+        const event = touchEvent([{ y: 300 }], { path: [createNode({ localName: 'hui-card' }), popUp] });
+        event.touches[0].identifier = identifier;
+        return { ...event, isTrusted: false };
+    }
+
+    test('is read on the real touch, so a map under the finger keeps the pop-up still', () => {
+        const { context, popUp } = harness();
+
+        context.handleTouchStartCapture(realTouch(popUp, [createNode(), createNode({ localName: 'ha-map' }), createNode()]));
+        context.handleTouchStart(copiedTouch(popUp));
+
+        expect(documentListeners.touchmove ?? []).toHaveLength(0);
+    });
+
+    test('still slides the pop-up when the real touch landed on nothing that owns the drag', () => {
+        const { context, popUp, closePopup } = harness({ height: 800 });
+
+        context.handleTouchStartCapture(realTouch(popUp, [createNode(), createNode()]));
+        context.handleTouchStart(copiedTouch(popUp));
+        for (let step = 1; step <= 5; step += 1) {
+            clock += 16;
+            dispatchMove(touchEvent([{ y: 300 + step * 80 }]));
+        }
+        frames.splice(0).forEach((frame) => frame());
+        dispatchEnd();
+
+        expect(closePopup).toHaveBeenCalledTimes(1);
+    });
+
+    test('falls back on its own path once the real touch is done', () => {
+        const { context, popUp } = harness();
+
+        context.handleTouchStartCapture(realTouch(popUp, [createNode({ localName: 'ha-map' })], { eventPhase: 0 }));
+        context.handleTouchStart(copiedTouch(popUp));
+
+        expect(documentListeners.touchmove).toHaveLength(1);
+    });
+
+    test('is never read on another finger', () => {
+        const { context, popUp } = harness();
+
+        context.handleTouchStartCapture(realTouch(popUp, [createNode({ localName: 'ha-map' })], { identifier: 1 }));
+        context.handleTouchStart(copiedTouch(popUp, { identifier: 2 }));
+
+        expect(documentListeners.touchmove).toHaveLength(1);
+    });
+
+    test('leaves a real touch to its own path', () => {
+        const { context, popUp } = harness();
+
+        context.handleTouchStartCapture(realTouch(popUp, [createNode({ localName: 'ha-map' })]));
+        context.handleTouchStart(realTouch(popUp, [createNode()], { identifier: 7 }));
+
+        expect(documentListeners.touchmove).toHaveLength(1);
+    });
+});
+
+// slide_to_close, missing or true slides from anywhere, `header` from the header
+// alone, false never. A touch that may not slide is still held from the page
+// behind, or the dashboard would scroll under the pop-up again (#2594).
+describe('slide_to_close', () => {
+    const header = () => createNode({ classes: ['bubble-header-container'] });
+
+    test('slides from anywhere when set to true', () => {
+        const { context, popUp, closePopup } = harness({ config: { slide_to_close: true } });
+
+        drag(context, { from: 100, to: 620, steps: 8, stepMs: 40, restMs: 200, path: [createNode(), popUp] });
+
+        expect(closePopup).toHaveBeenCalledTimes(1);
+    });
+
+    test('header keeps a drag from the content off the shell, and still holds the page behind', () => {
+        const { context, popUp, closePopup } = harness({ config: { slide_to_close: 'header' } });
+
+        const moveEvents = drag(context, { from: 100, to: 620, steps: 8, stepMs: 40, path: [createNode(), popUp] });
+
+        expect(moveEvents.every((event) => event.preventDefault.mock.calls.length === 1)).toBe(true);
+        expect(popUp.style.transform).toBe('');
+        expect(popUp.style.transition).toBe('');
+        expect(closePopup).not.toHaveBeenCalled();
+    });
+
+    test('header still lets a drag from the header close the pop-up', () => {
+        const { context, popUp, closePopup } = harness({ config: { slide_to_close: 'header' } });
+
+        drag(context, { from: 100, to: 620, steps: 8, stepMs: 40, restMs: 200, path: [createNode(), header(), popUp] });
+
+        expect(closePopup).toHaveBeenCalledTimes(1);
+    });
+
+    test('false never moves the shell, from the header either, and still holds the page behind', () => {
+        const { context, popUp, closePopup } = harness({ config: { slide_to_close: false } });
+
+        const moveEvents = drag(context, { from: 100, to: 620, steps: 8, stepMs: 40, path: [createNode(), header(), popUp] });
+
+        expect(moveEvents.every((event) => event.preventDefault.mock.calls.length === 1)).toBe(true);
+        expect(popUp.style.transform).toBe('');
+        expect(closePopup).not.toHaveBeenCalled();
+    });
+
+    test('reads the config on every touch, so an edit applies to the next one', () => {
+        const { context, popUp, closePopup } = harness({ config: { slide_to_close: false } });
+
+        drag(context, { from: 100, to: 620, steps: 8, stepMs: 40, path: [createNode(), popUp] });
+        expect(closePopup).not.toHaveBeenCalled();
+
+        context.config = {};
+        drag(context, { from: 100, to: 620, steps: 8, stepMs: 40, restMs: 200, path: [createNode(), popUp] });
+        expect(closePopup).toHaveBeenCalledTimes(1);
+    });
+
+    test('still gives the move back to a Bubble slider that takes it', () => {
+        const { context, popUp } = harness({ config: { slide_to_close: false } });
+        const slider = createNode({ classes: ['slider-container'] });
+
+        context.handleTouchStart(touchEvent([{ y: 300 }], { path: [slider, popUp] }));
+        slider.classList.add('is-dragging');
+        clock += 16;
+        dispatchMove(touchEvent([{ y: 320 }]));
+
+        expect(documentListeners.touchmove ?? []).toHaveLength(0);
+    });
+});

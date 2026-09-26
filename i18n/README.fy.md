@@ -178,6 +178,7 @@ Mei dizze kaart kinst in pop-up meitsje mei elke ynhâld. Elke pop-up is **stand
 | `auto_close` | string | Opsjoneel | In timeout yn millisekonden (bgl. `10000` foar 10s) | De pop-up automatysk slute nei in timeout |
 | `close_on_click` | boolean | Opsjoneel | `true` of `false` (standert) | De pop-up automatysk slute nei elke ynteraksje |
 | `close_by_clicking_outside` | boolean | Opsjoneel | `true` (standert) of `false` | De pop-up slute troch derbûten te klikken |
+| `slide_to_close` | boolean of string | Opsjoneel | `true` (standert), `header` of `false` | De pop-up slute troch him nei ûnderen te feegjen |
 | `width_desktop` | string | Opsjoneel | Elke CSS-wearde | Breedte op desktop (standert `100%` op mobyl) |
 | `margin` | string | Opsjoneel | Elke CSS-wearde | Brûk dit **allinnich** ast dyn pop-up net goed sintrearre is op mobyl (bgl. `13px`) |
 | `margin_top_mobile` | string | Opsjoneel | Elke CSS-wearde | Boppemarge op mobyl (bgl. `-56px` ast dyn header ferstoppe is) |

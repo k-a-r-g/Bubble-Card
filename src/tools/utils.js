@@ -119,6 +119,12 @@ let cachedBodyStyles = null;
 let cachedThemeId = null;
 let styleCacheNeedsThemeCheck = true;
 
+// Home Assistant locks the page scroll by writing inline on <html> as well, Web Awesome's
+// lock for its dialogs and bottom sheets, Home Assistant's own for its popovers. None of
+// it is a theme, so none of it is counted. Should one of these be renamed, an open and a
+// close go back to counting as a theme change, which is what they used to do anyway.
+const scrollLockDeclarations = ['--wa-scroll-lock-size', '--wa-scroll-lock-gutter', 'scrollbar-gutter'];
+
 function getCurrentThemeId() {
     // Home Assistant applies a theme by writing every token inline on <html>, so the
     // number of inline declarations plus the two colors Bubble Card reads identifies
@@ -126,9 +132,13 @@ function getCurrentThemeId() {
     // differ by it, and the default light theme, which writes no token at all, no
     // longer looks like a page whose theme has simply not been applied yet.
     const rootStyle = document.documentElement.style;
+    let count = rootStyle.length;
+    for (const declaration of scrollLockDeclarations) {
+        if (rootStyle.getPropertyValue(declaration)) count--;
+    }
     const bg = rootStyle.getPropertyValue('--primary-background-color').trim();
     const fg = rootStyle.getPropertyValue('--primary-text-color').trim();
-    return rootStyle.length + '|' + bg + '|' + fg;
+    return count + '|' + bg + '|' + fg;
 }
 
 // That same inline write is also the signal that a theme changed at all. Watching
@@ -279,6 +289,16 @@ function resolveSurfaceRgb(expression, context) {
   // this has to compare and step away from.
   const accent = resolveCssVariable('var(--bubble-accent-color, var(--bubble-default-color))');
   return hexToRgb(accent) || rgbStringToRgb(accent);
+}
+
+// How light the colour a surface expression paints really is. It goes through
+// the same resolution as getStateSurfaceColor, so a variable a card scopes to
+// itself is read, which resolveCssVariable alone does not do. Unlike
+// isColorLight it takes an expression that may already be a computed colour.
+export function isSurfaceColorLight(expression, context, threshold = 0.5) {
+  const rgb = resolveSurfaceRgb(expression, context);
+  if (!rgb) return false;
+  return calculateLuminance(...rgb) > threshold;
 }
 
 export function getStateSurfaceColor(context, entity = context.config.entity, useLightBackground = true, cardBackgroundColor = null, subButtonColor = null) {
@@ -1145,6 +1165,9 @@ const scrollLockLayerClass = 'bubble-scroll-lock-layer';
 const scrollLockLayerActiveClass = 'is-active';
 const scrollLockStyleId = 'bubble-card-no-scroll-styles';
 const scrollLockGutterProperty = '--bubble-scroll-lock-size';
+const scrollLockGutterClass = 'bubble-scroll-lock-gutter';
+// Engines that reserve the gutter themselves never read the size.
+const scrollLockSizeIsRead = typeof CSS === 'undefined' || !CSS.supports?.('scrollbar-gutter', 'stable');
 // The class on the body only ever marked state: nothing in the project styled
 // it, so the document stayed scrollable the whole time a pop-up was open. The
 // layer below catches what happens outside the pop-up, but a gesture that
@@ -1156,12 +1179,13 @@ const scrollLockGutterProperty = '--bubble-scroll-lock-size';
 // So the class is given the rules it never had, the ones Web Awesome uses to
 // lock the page behind a Home Assistant dialog (scroll-lock.css.js, imported by
 // resources/theme/wa.globals.ts). Overflow on the body and a gutter to keep the
-// layout still, and nothing else: no listener, no touch-action and no
-// preventDefault, which is what lets the cards inside keep scrolling in both
-// axes. An earlier attempt at this went the other way and took those with it.
+// layout still where a scrollbar was, and nothing else, no listener, no
+// touch-action and no preventDefault, which is what lets the cards inside keep
+// scrolling in both axes. An earlier attempt at this went the other way and
+// took those with it.
 const scrollLockCssContent = `
         @supports (scrollbar-gutter: stable) {
-            html.${scrollLockBodyClass} {
+            html.${scrollLockBodyClass}.${scrollLockGutterClass} {
                 scrollbar-gutter: stable !important;
             }
 
@@ -1326,8 +1350,23 @@ export function toggleBodyScroll(disable) {
             const gutter = typeof viewportWidth === 'number' && typeof root.clientWidth === 'number'
                 ? Math.max(0, viewportWidth - root.clientWidth)
                 : 0;
-            root.style?.setProperty?.(scrollLockGutterProperty, `${gutter}px`);
+            // A gutter only keeps the place of a scrollbar that was there. On a
+            // page too short to scroll, reserving one anyway pushed the whole
+            // dashboard aside by the width of a scrollbar that never existed
+            // (#2629). Home Assistant's own scroll lock has the same condition,
+            // and the 2px margin is Web Awesome's.
+            const hasGutter = gutter >= 2;
+            root.classList?.toggle?.(scrollLockGutterClass, hasGutter);
             root.classList?.add(scrollLockBodyClass);
+
+            // Only the fallback for engines without scrollbar-gutter reads the
+            // size, and it reads it on the body. Written inline on <html>, it
+            // changed the declaration count that identifies the theme, so every
+            // open and every close passed for a theme change, and as an
+            // inherited property it restyled the whole page each time.
+            if (hasGutter && scrollLockSizeIsRead) {
+                body.style?.setProperty?.(scrollLockGutterProperty, `${gutter}px`);
+            }
         }
 
         body.classList.add(scrollLockBodyClass);
@@ -1340,8 +1379,8 @@ export function toggleBodyScroll(disable) {
     }
 
     const root = document.documentElement;
-    root?.classList?.remove(scrollLockBodyClass);
-    root?.style?.removeProperty?.(scrollLockGutterProperty);
+    root?.classList?.remove(scrollLockBodyClass, scrollLockGutterClass);
+    body.style?.removeProperty?.(scrollLockGutterProperty);
 
     body.classList.remove(scrollLockBodyClass);
     getExistingScrollLockLayer()?.classList.remove(scrollLockLayerActiveClass);

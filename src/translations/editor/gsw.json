@@ -9,6 +9,7 @@
       "styling_options": "Styling-Optione",
       "styling_layout_options": "Styling- und Layout-Optione",
       "hidden": "Versteckt",
+      "disabled": "Deaktiviert",
       "move_up": "Ufe verschiebe",
       "move_down": "Abe verschiebe",
       "no_fields": "Kei Fälder definiert"
@@ -277,6 +278,8 @@
       "settings": "Pop-up-Iistellige",
       "auto_close": "Automatisch schlüsse i Millisekunde (z. B. 15000)",
       "close_outside": "Pop-up dur Klicke dusse dra schlüsse (es bruucht e Aktualisierig)",
+      "slide_to_close": "Wische zum Schlüsse",
+      "slide_to_close_header": "Nume vo de Chopfziile us",
       "close_on_click": "Pop-up nach jedem Klick oder Tipp schlüsse",
       "background_update": "Charte im Hintergrund aktualisiere (nöd empfohle)",
       "background_update_title": "Hintergrund-Aktualisierige",

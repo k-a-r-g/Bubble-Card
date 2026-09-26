@@ -150,7 +150,7 @@ describe('BubbleCard disconnect contract', () => {
 
 // Same instance the element module got, so the pop-up gating below can be
 // asserted without touching the mock registrations above.
-const { handlePopUp } = await import('./cards/pop-up/index.js');
+const { handlePopUp, cleanupPopUp } = await import('./cards/pop-up/index.js');
 const { registerPopupContext, shouldHoldDashboardHassUpdate } = await import('./cards/pop-up/helpers.js');
 
 describe('BubbleCard pre-connection rendering', () => {
@@ -501,5 +501,101 @@ describe('the entity a pop-up header is asked for', () => {
 
     test('a name header never needed one', () => {
         expect(() => createCard().setConfig(popUp({ button_type: 'name' }))).not.toThrow();
+    });
+});
+
+// Home Assistant takes a card down and puts it straight back whenever it moves it
+// in the DOM, which a view rebuilt on navigation does (#2589, uix-forge). The
+// pop-up must come through that whole, and its shell must still slide.
+describe('a pop-up card moved in the DOM', () => {
+    let styleReads;
+
+    function createShell(classes) {
+        const set = new Set(classes);
+        return {
+            isConnected: true,
+            classes: set,
+            classList: {
+                contains: (name) => set.has(name),
+                add: (name) => set.add(name),
+                remove: (name) => set.delete(name),
+            },
+        };
+    }
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.useFakeTimers();
+        styleReads = [];
+        global.getComputedStyle = jest.fn((element) => {
+            styleReads.push([...element.classes]);
+            return { opacity: '1' };
+        });
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
+        delete global.getComputedStyle;
+    });
+
+    test('keeps its pop-up when it comes straight back', () => {
+        const card = createCard({ card_type: 'pop-up', hash: '#kitchen' });
+        card.connectedCallback();
+
+        card.disconnectedCallback();
+        card.connectedCallback();
+        jest.runAllTimers();
+
+        expect(cleanupPopUp).not.toHaveBeenCalled();
+    });
+
+    test('tears its pop-up down once it stays out of the document', () => {
+        const card = createCard({ card_type: 'pop-up', hash: '#kitchen' });
+        card.connectedCallback();
+
+        card.disconnectedCallback();
+        expect(cleanupPopUp).not.toHaveBeenCalled();
+        jest.runAllTimers();
+
+        expect(cleanupPopUp).toHaveBeenCalledTimes(1);
+        expect(cleanupPopUp).toHaveBeenCalledWith(card);
+    });
+
+    test('replays a close under way from the open position', () => {
+        const card = createCard({ card_type: 'pop-up', hash: '#kitchen' });
+        card.connectedCallback();
+        card.popUp = createShell(['bubble-pop-up', 'is-popup-opened', 'is-closing']);
+
+        card.disconnectedCallback();
+        card.connectedCallback();
+
+        // The style is read without the close, which makes the open position
+        // the start of the transition, then the close goes back on.
+        expect(styleReads).toEqual([['bubble-pop-up', 'is-popup-opened']]);
+        expect(card.popUp.classes.has('is-closing')).toBe(true);
+    });
+
+    test('gives the shell its style back after a move with nothing under way', () => {
+        const card = createCard({ card_type: 'pop-up', hash: '#kitchen' });
+        card.connectedCallback();
+        card.popUp = createShell(['bubble-pop-up', 'is-popup-opened']);
+
+        card.disconnectedCallback();
+        card.connectedCallback();
+
+        expect(styleReads).toEqual([['bubble-pop-up', 'is-popup-opened']]);
+        expect([...card.popUp.classes]).toEqual(['bubble-pop-up', 'is-popup-opened']);
+    });
+
+    test('leaves a detached shell alone', () => {
+        const card = createCard({ card_type: 'pop-up', hash: '#kitchen' });
+        card.connectedCallback();
+        card.popUp = createShell(['bubble-pop-up', 'is-popup-closed']);
+        card.popUp.isConnected = false;
+
+        card.disconnectedCallback();
+        card.connectedCallback();
+
+        expect(styleReads).toEqual([]);
     });
 });

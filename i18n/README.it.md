@@ -178,6 +178,7 @@ Questa scheda ti permette di creare un pop-up con qualsiasi contenuto. Ogni pop-
 | `auto_close` | string | Facoltativo | Un timeout in millisecondi (ad es. `10000` per 10s) | Chiude automaticamente il pop-up dopo un timeout |
 | `close_on_click` | boolean | Facoltativo | `true` o `false` (predefinito) | Chiude automaticamente il pop-up dopo qualsiasi interazione |
 | `close_by_clicking_outside` | boolean | Facoltativo | `true` (predefinito) o `false` | Chiude il pop-up cliccando al di fuori di esso |
+| `slide_to_close` | boolean o string | Facoltativo | `true` (predefinito), `header` o `false` | Chiude il pop-up scorrendolo verso il basso |
 | `width_desktop` | string | Facoltativo | Qualsiasi valore CSS | Larghezza su desktop (`100%` predefinito su mobile) |
 | `margin` | string | Facoltativo | Qualsiasi valore CSS | Usa questa opzione **solo** se il tuo pop-up non è ben centrato su mobile (ad es. `13px`) |
 | `margin_top_mobile` | string | Facoltativo | Qualsiasi valore CSS | Margine superiore su mobile (ad es. `-56px` se la tua intestazione è nascosta) |

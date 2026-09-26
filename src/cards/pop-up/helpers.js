@@ -2310,12 +2310,14 @@ function ensurePopupListenerBindings(context) {
     }
 }
 
-// The slide-to-close gesture keeps a single passive listener at rest and
+// The slide-to-close gesture keeps two passive listeners at rest, the one that
+// starts it and the capture one that only remembers the real touch, and
 // registers its own move/end pair on the document only for the length of a
-// drag, so a pop-up sitting open costs one listener and nothing else.
+// drag, so a pop-up sitting open costs nothing else.
 function getPopupBaseListeners(context) {
     return [
         [context.popUp, 'touchstart', context.handleTouchStart, { passive: true }],
+        [context.popUp, 'touchstart', context.handleTouchStartCapture, { passive: true, capture: true }],
         [window, 'keydown', context.closeOnEscape, { passive: true }],
     ];
 }
@@ -2508,6 +2510,75 @@ function resetPopupToClosedState(context) {
     restoreShellTransition(context.popUp);
 }
 
+// Home Assistant tears a card down and re-attaches it whenever it moves it in
+// the DOM, and a masonry re-layout does exactly that. A third-party card that
+// makes the view rebuild on navigation puts that teardown right in the middle
+// of a close (#2589, uix-forge). The context leaves `popupState.activePopups`
+// while its shell still carries `is-popup-opened`, and since the URL dispatcher
+// only ever walks the active pop-ups, nobody is left to tell that shell it is
+// closed. It stays on screen, the header of a bottom sheet frozen at the bottom
+// of the viewport, for the rest of the session.
+//
+// No third-party card can be relied upon here, so the shell state is reconciled
+// against the URL wherever it can be observed, at the teardown, at the next URL
+// change and at the next update.
+function popupShellOutlivedItsUrl(context, currentHash = location.hash) {
+    if (!context?.popUp?.classList?.contains('is-popup-opened')) {
+        return false;
+    }
+
+    // The editor holds its preview open whatever the URL says.
+    if (context.editor || context.detectedEditor) {
+        return false;
+    }
+
+    // Every legitimate open puts the pop-up's own hash in the URL, an entity
+    // trigger included (syncTriggeredPopupHash), so the URL is what tells an
+    // open shell apart from one that has been left behind. A card merely moved
+    // in the DOM while its own hash is still current is still open, and the
+    // open half of syncPopupOpenStateWithLocation puts its runtime back.
+    const hash = context.config?.hash;
+    return !!hash && currentHash !== hash;
+}
+
+function isAbandonedOpenPopupShell(context, currentHash = location.hash) {
+    const classList = context?.popUp?.classList;
+    // Cheapest and most selective first, since this runs over every registered
+    // pop-up on every URL change and almost all of them are closed.
+    if (!classList?.contains('is-popup-opened')) {
+        return false;
+    }
+
+    // A live runtime still owns its shell, and so does a close under way until
+    // its transition ends. Only a shell nobody drives is abandoned.
+    if (popupState.activePopups.has(context) || classList.contains('is-closing')) {
+        return false;
+    }
+
+    return popupShellOutlivedItsUrl(context, currentHash);
+}
+
+// The context is still alive here, so it gets the real close rather than a bare
+// state reset. The shell slides away, the backdrop and the body scroll are
+// released, the cards are torn down and the shell detached.
+function closeAbandonedPopupShell(context, currentHash = location.hash) {
+    if (!isAbandonedOpenPopupShell(context, currentHash)) {
+        return false;
+    }
+
+    closePopup(context, true);
+    return true;
+}
+
+function sweepAbandonedPopupShells(currentHash) {
+    for (const ref of popupRegistry.values()) {
+        const context = ref?.deref?.();
+        if (context) {
+            closeAbandonedPopupShell(context, currentHash);
+        }
+    }
+}
+
 function normalizePopupBeforeOpen(context) {
     const visuallyOpen = context.popUp?.classList?.contains('is-popup-opened');
     const isClosing = context.popUp?.classList?.contains('is-closing');
@@ -2693,6 +2764,12 @@ export function openPopup(context, instant = false) {
 export function syncPopupOpenStateWithLocation(context, instant = true) {
     const currentHash = location.hash;
     if (!currentHash || context.config?.hash !== currentHash) {
+        // The URL has moved on and this shell is still showing, because the
+        // card was torn down and re-attached across the close and left the
+        // active pop-ups before the dispatcher could close it. This runs on
+        // every update, which makes it the backstop for whatever the teardown
+        // and the dispatcher could not see.
+        closeAbandonedPopupShell(context, currentHash);
         return false;
     }
 
@@ -2976,6 +3053,12 @@ function ensureGlobalUrlListener() {
             }
         }
 
+        // The loop above only reaches the pop-ups the runtime still owns. One
+        // whose card was torn down mid-open is no longer among them and would
+        // never be closed by anything, so the registered pop-ups are swept for
+        // shells left open behind the URL.
+        sweepAbandonedPopupShells(currentHash);
+
         const ref = popupRegistry.get(currentHash);
         const context = ref?.deref();
         if (context) {
@@ -3035,7 +3118,35 @@ export function cleanupPopupRuntime(context) {
     const inEditor = !!context.editor;
     const isDetached = context._standalonePopUpParent != null;
 
-    if (visuallyOpen || inEditor) {
+    // Home Assistant answers a back navigation by rebuilding the view, so the
+    // URL has already moved on when the card is torn down, which makes this the
+    // first and only moment the shell that rebuild abandons can be caught
+    // before it is painted (#2589). The teardown is itself what abandons it, so
+    // neither the runtime state nor a close under way is part of the question
+    // here. clearAllTimeouts above just cancelled the completion that would
+    // have ended that close anyway.
+    const abandonedOpenShell = visuallyOpen && popupShellOutlivedItsUrl(context);
+
+    // Closing a legacy pop-up parks its shell out of the stack, and that shell
+    // holds the card itself, so the close disconnects the element and lands
+    // here. Unregistering then takes the hash out of the URL dispatcher, so the
+    // next navigation to it finds nobody and the pop-up only opens once a
+    // later hass tick re-registers it. A real teardown takes the stack card
+    // itself out of the document, which is what tells the two apart. Read
+    // before the reset below, which parks the shell of a legacy pop-up itself.
+    const parkedLegacyShell = !context.isStandalonePopUp &&
+        !!context.popUp &&
+        context.verticalStack?.host?.isConnected === true &&
+        !context.verticalStack.contains(context.popUp);
+
+    // The element is on its way out and clearAllTimeouts just cancelled the
+    // completion a transition would have run, so the shell is put back to its
+    // closed state outright rather than through a close that cannot finish.
+    if (abandonedOpenShell) {
+        resetPopupToClosedState(context);
+    }
+
+    if ((visuallyOpen && !abandonedOpenShell) || inEditor) {
         restorePopupHostLayout(context);
     } else if (!isDetached) {
         suspendPopupHostLayout(context);
@@ -3058,23 +3169,12 @@ export function cleanupPopupRuntime(context) {
         }
     } catch (_) {}
 
-    // Closing a legacy pop-up parks its shell out of the stack, and that shell
-    // holds the card itself, so the close disconnects the element and lands
-    // here. Unregistering then takes the hash out of the URL dispatcher: the
-    // next navigation to it finds nobody and the pop-up only opens once a
-    // later hass tick re-registers it. A real teardown takes the stack card
-    // itself out of the document, which is what tells the two apart.
-    const parkedLegacyShell = !context.isStandalonePopUp &&
-        !!context.popUp &&
-        context.verticalStack?.host?.isConnected === true &&
-        !context.verticalStack.contains(context.popUp);
-
     if (!parkedLegacyShell) {
         unregisterPopupContext(context);
     }
     releaseBackdropContext(context);
 
-    if (!visuallyOpen && shouldHideOrphanedBackdrop()) {
+    if ((!visuallyOpen || abandonedOpenShell) && shouldHideOrphanedBackdrop()) {
         hideExistingBackdrop();
     }
 

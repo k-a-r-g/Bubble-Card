@@ -178,6 +178,7 @@ Mae'r cerdyn hwn yn caniatáu i chi greu naidlen gydag unrhyw gynnwys. Mae pob n
 | `auto_close` | string | Dewisol | Terfyn amser mewn milieiliadau (e.e. `10000` am 10eil) | Cau'r naidlen yn awtomatig ar ôl terfyn amser |
 | `close_on_click` | boolean | Dewisol | `true` or `false` (diofyn) | Cau'r naidlen yn awtomatig ar ôl unrhyw ryngweithiad |
 | `close_by_clicking_outside` | boolean | Dewisol | `true` (diofyn) or `false` | Cau'r naidlen drwy glicio y tu allan iddi |
+| `slide_to_close` | boolean or string | Dewisol | `true` (diofyn), `header` or `false` | Cau'r naidlen drwy ei llithro i lawr |
 | `width_desktop` | string | Dewisol | Unrhyw werth CSS | Lled ar gyfrifiadur bwrdd gwaith (`100%` yn ddiofyn ar symudol) |
 | `margin` | string | Dewisol | Unrhyw werth CSS | Defnyddiwch hyn **dim ond** os nad yw'ch naidlen wedi'i chanoli'n dda ar symudol (e.e. `13px`) |
 | `margin_top_mobile` | string | Dewisol | Unrhyw werth CSS | Ymyl uchaf ar symudol (e.e. `-56px` os yw'ch pennyn wedi'i guddio) |

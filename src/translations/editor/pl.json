@@ -9,6 +9,7 @@
       "styling_options": "Opcje stylu",
       "styling_layout_options": "Opcje stylu i układu",
       "hidden": "Ukryte",
+      "disabled": "Wyłączone",
       "move_up": "Przenieś w górę",
       "move_down": "Przenieś w dół",
       "no_fields": "Nie zdefiniowano pól"
@@ -277,6 +278,8 @@
       "settings": "Ustawienia pop-upu",
       "auto_close": "Automatyczne zamknięcie w milisekundach (np. 15000)",
       "close_outside": "Zamykaj pop-up kliknięciem poza nim (wymagane odświeżenie)",
+      "slide_to_close": "Przeciągnij, aby zamknąć",
+      "slide_to_close_header": "Tylko z nagłówka",
       "close_on_click": "Zamykaj pop-up po każdym kliknięciu lub dotknięciu",
       "background_update": "Aktualizuj karty w tle (niezalecane)",
       "background_update_title": "Aktualizacje w tle",

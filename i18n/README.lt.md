@@ -178,6 +178,7 @@ Visos parinktys gali būti sukonfigūruotos Home Assistant redaktoriuje. Tačiau
 | `auto_close` | string | Neprivaloma | Laiko limitas milisekundėmis (pvz. `10000` reiškia 10 s) | Automatiškai uždaro iškylantįjį langą po nustatyto laiko |
 | `close_on_click` | boolean | Neprivaloma | `true` arba `false` (numatyta) | Automatiškai uždaro iškylantįjį langą po bet kokios sąveikos |
 | `close_by_clicking_outside` | boolean | Neprivaloma | `true` (numatyta) arba `false` | Uždaro iškylantįjį langą spustelėjus už jo ribų |
+| `slide_to_close` | boolean arba string | Neprivaloma | `true` (numatyta), `header` arba `false` | Uždaro iškylantįjį langą braukiant žemyn |
 | `width_desktop` | string | Neprivaloma | Bet kokia CSS reikšmė | Plotis kompiuteryje (`100%` numatyta mobiliajame įrenginyje) |
 | `margin` | string | Neprivaloma | Bet kokia CSS reikšmė | Naudokite tai **tik** jei jūsų iškylantysis langas nėra gerai centruotas mobiliajame įrenginyje (pvz. `13px`) |
 | `margin_top_mobile` | string | Neprivaloma | Bet kokia CSS reikšmė | Viršutinė paraštė mobiliajame įrenginyje (pvz. `-56px`, jei jūsų antraštė paslėpta) |

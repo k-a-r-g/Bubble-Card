@@ -178,6 +178,7 @@ Met hierdie kaart kan jy 'n pop-up met enige inhoud skep. Elke pop-up is **by ve
 | `auto_close` | string | Opsioneel | 'n Uitteltyd in millisekondes (bv. `10000` vir 10s) | Maak die pop-up outomaties toe na 'n uitteltyd |
 | `close_on_click` | boolean | Opsioneel | `true` of `false` (verstek) | Maak die pop-up outomaties toe na enige interaksie |
 | `close_by_clicking_outside` | boolean | Opsioneel | `true` (verstek) of `false` | Maak die pop-up toe deur daarbuite te klik |
+| `slide_to_close` | boolean of string | Opsioneel | `true` (verstek), `header` of `false` | Maak die pop-up toe deur dit na onder te vee |
 | `width_desktop` | string | Opsioneel | Enige CSS-waarde | Breedte op rekenaar (by verstek `100%` op mobiel) |
 | `margin` | string | Opsioneel | Enige CSS-waarde | Gebruik dit **slegs** as jou pop-up nie goed gesentreer is op mobiel nie (bv. `13px`) |
 | `margin_top_mobile` | string | Opsioneel | Enige CSS-waarde | Boonste kantlyn op mobiel (bv. `-56px` as jou opskrif versteek is) |

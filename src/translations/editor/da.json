@@ -9,6 +9,7 @@
       "styling_options": "Stilindstillinger",
       "styling_layout_options": "Stil- og layoutindstillinger",
       "hidden": "Skjult",
+      "disabled": "Deaktiveret",
       "move_up": "Flyt op",
       "move_down": "Flyt ned",
       "no_fields": "Ingen felter defineret"
@@ -277,6 +278,8 @@
       "settings": "Pop-up-indstillinger",
       "auto_close": "Luk automatisk efter millisekunder (f.eks. 15000)",
       "close_outside": "Luk pop-uppen ved at klikke uden for den (en genindlæsning er nødvendig)",
+      "slide_to_close": "Swipe for at lukke",
+      "slide_to_close_header": "Kun fra headeren",
       "close_on_click": "Luk pop-uppen efter et hvilket som helst klik eller tryk",
       "background_update": "Opdater kort i baggrunden (anbefales ikke)",
       "background_update_title": "Baggrundsopdateringer",

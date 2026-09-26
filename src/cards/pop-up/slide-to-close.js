@@ -133,16 +133,57 @@ function hasClass(node, className) {
     return typeof node?.classList?.contains === 'function' && node.classList.contains(className);
 }
 
-// Walks from the touch to the shell once, and answers both questions that walk
-// can answer, whether this gesture may start at all, and whether a slider on the
-// way has a verdict to be waited for.
+// The part of the shell that `header` in `slide_to_close` keeps the gesture to.
+const HEADER_CLASS = 'bubble-header-container';
+
+// `slide_to_close` in the pop-up's config. Missing or true slides from anywhere,
+// `header` from the header alone, false never. Read on every touch, so a change
+// made in the editor applies to the next one.
+function readSlideMode(config) {
+    const value = config?.slide_to_close;
+    if (value === false) {
+        return 'off';
+    }
+
+    return value === 'header' ? 'header' : 'anywhere';
+}
+
+// custom:button-card stops the real touch on a card nested in it and hands its
+// parent a scripted copy instead (#2627). The copy starts at that parent, so the
+// map or the slider under the finger is missing from its path, and a drag across
+// a map in a button-card closed the pop-up. The shell sees the real touch go by
+// in the capture phase, and a copy of it is read on it while that touch is still
+// being dispatched, which is where the copy comes from.
+function readTouchSource(event, realTouchStart) {
+    if (event.isTrusted !== false || !realTouchStart || realTouchStart === event) {
+        return event;
+    }
+
+    // Event.NONE, the real touch is done and its path gone with it.
+    if (realTouchStart.eventPhase === 0) {
+        return event;
+    }
+
+    const copied = event.touches?.[0];
+    const real = realTouchStart.touches?.[0];
+    if (!copied || !real || copied.identifier !== real.identifier) {
+        return event;
+    }
+
+    return realTouchStart;
+}
+
+// Walks from the touch to the shell once, and answers every question that walk
+// can answer, whether this gesture may start at all, whether a slider on the way
+// has a verdict to be waited for, and whether the finger landed on the header.
 function readGestureTarget(event, popUp) {
     const path = typeof event.composedPath === 'function' ? event.composedPath() : null;
     if (!path?.length) {
-        return { blocked: false, slider: null };
+        return { blocked: false, slider: null, header: false };
     }
 
     let slider = null;
+    let header = false;
 
     for (const node of path) {
         if (node === popUp) {
@@ -154,19 +195,23 @@ function readGestureTarget(event, popUp) {
         }
 
         if (isSwipeLockedNode(node)) {
-            return { blocked: true, slider: null };
+            return { blocked: true, slider: null, header: false };
         }
 
         if (!slider && SLIDER_CLASSES.some((className) => hasClass(node, className))) {
             // Already mid-drag when the finger landed, so it is not this gesture's.
             if (hasClass(node, SLIDER_DRAGGING_CLASS)) {
-                return { blocked: true, slider: null };
+                return { blocked: true, slider: null, header: false };
             }
             slider = node;
         }
+
+        if (!header && hasClass(node, HEADER_CLASS)) {
+            header = true;
+        }
     }
 
-    return { blocked: false, slider };
+    return { blocked: false, slider, header };
 }
 
 // Room left to scroll down, which is what a finger moving up is asking for.
@@ -304,6 +349,14 @@ export function configurePopupSlideToClose(context, closePopup) {
     // never touched in this state, the moves are only kept from reaching the
     // page behind.
     let blocking = false;
+    // Whether this touch may move the shell at all, from `slide_to_close`. One
+    // that may not is still held from the page behind, exactly like a touch that
+    // belongs to nothing, or the dashboard would scroll under the pop-up again
+    // (#2594).
+    let slides = true;
+    // The last real touch the shell saw going down, kept so a scripted copy of
+    // it can be read on it (see readTouchSource).
+    let realTouchStart = null;
 
     const writeOffset = () => {
         dragFrame = null;
@@ -441,6 +494,13 @@ export function configurePopupSlideToClose(context, closePopup) {
                 return;
             }
 
+            // A drag the config keeps from moving the shell, held from the page
+            // behind for the rest of the touch instead.
+            if (!slides) {
+                blocking = true;
+                return;
+            }
+
             closeDistance = resolveCloseDistance(context.popUp);
             dragging = true;
             // Held still for the whole drag so the shell follows the finger
@@ -511,15 +571,18 @@ export function configurePopupSlideToClose(context, closePopup) {
             return;
         }
 
-        const target = readGestureTarget(event, popUp);
+        const target = readGestureTarget(readTouchSource(event, realTouchStart), popUp);
         if (target.blocked) {
             return;
         }
+
+        const mode = readSlideMode(context.config);
 
         active = true;
         dragging = false;
         claimed = false;
         blocking = false;
+        slides = mode === 'anywhere' || (mode === 'header' && target.header);
         offset = 0;
         closeDistance = 0;
         slider = target.slider;
@@ -539,6 +602,16 @@ export function configurePopupSlideToClose(context, closePopup) {
         // the document before any of them can swallow anything.
         document.addEventListener('touchend', handleTouchEnd, { capture: true, passive: true });
         document.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive: true });
+    };
+
+    // Bound in the capture phase, where every real touch reaches the shell even
+    // when a card stops it on its way back up. It only remembers the touch. The
+    // gesture still starts in the bubble phase, so a card that stops a real
+    // touch keeps it to itself as before.
+    context.handleTouchStartCapture = (event) => {
+        if (event.isTrusted) {
+            realTouchStart = event;
+        }
     };
 
     // Called when the pop-up's listeners are taken down, so a close that lands

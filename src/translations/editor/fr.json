@@ -9,6 +9,7 @@
       "styling_options": "Options de mise en forme",
       "styling_layout_options": "Options de mise en forme et de disposition",
       "hidden": "Masqué",
+      "disabled": "Désactivé",
       "move_up": "Déplacer vers le haut",
       "move_down": "Déplacer vers le bas",
       "no_fields": "Aucun champ défini"
@@ -277,6 +278,8 @@
       "settings": "Paramètres de la pop-up",
       "auto_close": "Fermeture automatique en millisecondes (ex. 15000)",
       "close_outside": "Fermer la pop-up en cliquant en dehors de celle-ci (un rafraîchissement est nécessaire)",
+      "slide_to_close": "Glisser pour fermer",
+      "slide_to_close_header": "Depuis l'en-tête seulement",
       "close_on_click": "Fermer la pop-up après un clic ou un appui",
       "background_update": "Mettre à jour les cartes en arrière-plan (non recommandé)",
       "background_update_title": "Mises à jour en arrière-plan",

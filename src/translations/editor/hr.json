@@ -9,6 +9,7 @@
       "styling_options": "Opcije stila",
       "styling_layout_options": "Opcije stila i rasporeda",
       "hidden": "Skriveno",
+      "disabled": "Onemogućeno",
       "move_up": "Pomakni gore",
       "move_down": "Pomakni dolje",
       "no_fields": "Nema definiranih polja"
@@ -277,6 +278,8 @@
       "settings": "Postavke skočnog prozora",
       "auto_close": "Automatsko zatvaranje u milisekundama (npr. 15000)",
       "close_outside": "Zatvori skočni prozor klikom izvan njega (potrebno je osvježavanje)",
+      "slide_to_close": "Povlačenje za zatvaranje",
+      "slide_to_close_header": "Samo iz zaglavlja",
       "close_on_click": "Zatvori skočni prozor nakon bilo kojeg klika ili dodira",
       "background_update": "Ažuriraj kartice u pozadini (nije preporučeno)",
       "background_update_title": "Pozadinska ažuriranja",

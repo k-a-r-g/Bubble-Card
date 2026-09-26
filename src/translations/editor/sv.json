@@ -9,6 +9,7 @@
       "styling_options": "Stilalternativ",
       "styling_layout_options": "Stil- och layoutalternativ",
       "hidden": "Dold",
+      "disabled": "Inaktiverad",
       "move_up": "Flytta upp",
       "move_down": "Flytta ner",
       "no_fields": "Inga fält definierade"
@@ -277,6 +278,8 @@
       "settings": "Pop-up-inställningar",
       "auto_close": "Stäng automatiskt efter millisekunder (t.ex. 15000)",
       "close_outside": "Stäng pop-upen genom att klicka utanför den (en uppdatering krävs)",
+      "slide_to_close": "Svep för att stänga",
+      "slide_to_close_header": "Endast från rubriken",
       "close_on_click": "Stäng pop-upen efter valfritt klick eller tryck",
       "background_update": "Uppdatera kort i bakgrunden (rekommenderas inte)",
       "background_update_title": "Bakgrundsuppdateringar",

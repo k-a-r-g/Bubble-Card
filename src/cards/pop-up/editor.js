@@ -50,6 +50,54 @@ export function getPopupPerformanceModeValue(config) {
     return 'default';
 }
 
+// slide_to_close as the dropdown shows it. Missing or true is Auto, the default,
+// `header` keeps the gesture to the header, and false turns it off (#2627).
+export function getPopupSlideToCloseValue(config) {
+    if (config?.slide_to_close === false) return 'disabled';
+    if (config?.slide_to_close === 'header') return 'header';
+    return 'auto';
+}
+
+// Auto leaves no key behind, the way the other defaults of this panel do.
+export function applyPopupSlideToClose(editor, value) {
+    if (value === 'header' || value === 'disabled') {
+        editor._valueChanged({
+            target: { configValue: 'slide_to_close' },
+            detail: { value: value === 'header' ? 'header' : false }
+        });
+        return;
+    }
+
+    const newConfig = { ...editor._config };
+    delete newConfig.slide_to_close;
+    fireEvent(editor, 'config-changed', { config: newConfig });
+}
+
+function renderPopupSlideToCloseDropdown(editor) {
+    const t = setupTranslation(editor.hass);
+    return html`
+        <ha-form
+            .hass=${editor.hass}
+            .data=${{ slide_to_close: getPopupSlideToCloseValue(editor._config) }}
+            .schema=${[{
+                name: 'slide_to_close',
+                selector: {
+                    select: {
+                        options: [
+                            { label: t('editor.common.auto') + t('editor.common.default_suffix'), value: 'auto' },
+                            { label: t('editor.popup.slide_to_close_header'), value: 'header' },
+                            { label: t('editor.common.disabled'), value: 'disabled' },
+                        ],
+                        mode: 'dropdown'
+                    }
+                }
+            }]}
+            .computeLabel=${() => t('editor.popup.slide_to_close')}
+            @value-changed=${(ev) => applyPopupSlideToClose(editor, ev.detail.value.slide_to_close)}
+        ></ha-form>
+    `;
+}
+
 function renderPopupStyleDropdown(editor) {
     const t = setupTranslation(editor.hass);
     return html`
@@ -713,7 +761,10 @@ export function renderPopUpEditor(editor) {
                 </h4>
                 <div class="content">
                     ${renderPopupPerformanceModeDropdown(editor)}
+                    <!-- Home Assistant's text input keeps 8px under the field for a hint this
+                         one never shows, which spaced the next dropdown wider than the others -->
                     <ha-form
+                        style="--ha-input-padding-bottom: 0px"
                         .hass=${editor.hass}
                         .data=${{ auto_close: editor._config?.auto_close ?? '' }}
                         .schema=${[{
@@ -729,6 +780,7 @@ export function renderPopUpEditor(editor) {
                             });
                         }}
                     ></ha-form>
+                    ${renderPopupSlideToCloseDropdown(editor)}
                     <ha-formfield>
                         <ha-switch
                             aria-label="${t('editor.popup.close_outside')}"

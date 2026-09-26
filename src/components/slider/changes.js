@@ -30,7 +30,9 @@ function parseTranslatePercent(transformString) {
   return { axis, value: numericValue };
 }
 
-function getDisplayedPercentage(context) {
+// What the fill shows right now, and nothing at all when it has never been
+// drawn. A slide writes it too, so this is also where the finger left it.
+function readDisplayedPercentage(context) {
   try {
     if (Number.isFinite(context._lastVisualFillPercentage)) {
       return toActualPercentage(context, context._lastVisualFillPercentage);
@@ -46,6 +48,14 @@ function getDisplayedPercentage(context) {
       }
     }
   } catch (_) {}
+  return undefined;
+}
+
+// The same, for an animation that has to start somewhere even on a fill that
+// was never drawn.
+function getDisplayedPercentage(context) {
+  const displayed = readDisplayedPercentage(context);
+  if (displayed !== undefined) return displayed;
   try {
     return Math.round(getCurrentPercentage(context, context.config.entity));
   } catch (_) {
@@ -282,12 +292,25 @@ export function updateSlider(
 
   const percentage = getCurrentPercentage(context, entity);
 
-  const previousPercentage = context._lastSliderPercentage;
-  
   // Update style first (cached, fast)
   updateSliderStyle(context);
-  
-  // If percentage hasn't changed significantly, skip animation
+
+  // The fill follows the state object, the way Home Assistant follows it on its
+  // own sliders (hui-numeric-input-card-feature reads the value again whenever
+  // stateObj changes). A slide leaves the fill where the finger dropped it, so
+  // an entity coming back to the value it had before the slide still has to
+  // pull it back, and comparing values alone read that as nothing to do
+  // (#2493). A state that has not moved is no news, and the fill stays where
+  // the slide left it rather than jumping back before Home Assistant answers.
+  const stateObj = context._hass?.states?.[entity];
+  if (stateObj && stateObj === context._sliderSyncedState) {
+    return;
+  }
+  context._sliderSyncedState = stateObj;
+
+  const previousPercentage = readDisplayedPercentage(context);
+
+  // Already showing what the entity carries.
   if (previousPercentage !== undefined && Math.abs(previousPercentage - percentage) < 0.01) {
     return;
   }

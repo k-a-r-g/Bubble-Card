@@ -33,11 +33,14 @@ jest.unstable_mockModule('../../editor/utils.js', () => ({
 }));
 
 const {
+    applyPopupSlideToClose,
     getPopupPerformanceModeValue,
+    getPopupSlideToCloseValue,
     getPopUpHashInputState,
     normalizePopUpHashInputValue,
     renderPopUpEditor,
 } = await import('./editor.js');
+const { fireEvent } = await import('../../tools/utils.js');
 
 describe('pop-up editor hash input helpers', () => {
     beforeEach(() => {
@@ -134,6 +137,52 @@ describe('the pop-up editor renders', () => {
         ['the Home Assistant style', { popup_style: 'home-assistant' }],
     ])('with %s', (_label, config) => {
         expect(() => renderPopUpEditor(makeEditor(config))).not.toThrow();
+    });
+
+    test.each([
+        ['slide to close from the header only', { slide_to_close: 'header' }],
+        ['slide to close disabled', { slide_to_close: false }],
+    ])('with %s', (_label, config) => {
+        expect(() => renderPopUpEditor(makeEditor(config))).not.toThrow();
+    });
+});
+
+// The dropdown shows the three values slide_to_close takes, and writes back the
+// YAML the README documents, with no key at all for the default (#2627).
+describe('the slide to close dropdown', () => {
+    beforeEach(() => {
+        fireEvent.mockClear();
+    });
+
+    test('shows Auto for a missing key and for true', () => {
+        expect(getPopupSlideToCloseValue({})).toBe('auto');
+        expect(getPopupSlideToCloseValue({ slide_to_close: true })).toBe('auto');
+        expect(getPopupSlideToCloseValue(undefined)).toBe('auto');
+    });
+
+    test('shows the header and the disabled choices for what they write', () => {
+        expect(getPopupSlideToCloseValue({ slide_to_close: 'header' })).toBe('header');
+        expect(getPopupSlideToCloseValue({ slide_to_close: false })).toBe('disabled');
+    });
+
+    test('writes header and false through the editor', () => {
+        const editor = { _config: { card_type: 'pop-up' }, _valueChanged: jest.fn() };
+
+        applyPopupSlideToClose(editor, 'header');
+        applyPopupSlideToClose(editor, 'disabled');
+
+        expect(editor._valueChanged.mock.calls.map(([event]) => [event.target.configValue, event.detail.value]))
+            .toEqual([['slide_to_close', 'header'], ['slide_to_close', false]]);
+        expect(fireEvent).not.toHaveBeenCalled();
+    });
+
+    test('leaves no key behind for Auto, and keeps the rest of the config', () => {
+        const editor = { _config: { card_type: 'pop-up', hash: '#kitchen', slide_to_close: false }, _valueChanged: jest.fn() };
+
+        applyPopupSlideToClose(editor, 'auto');
+
+        expect(editor._valueChanged).not.toHaveBeenCalled();
+        expect(fireEvent).toHaveBeenCalledWith(editor, 'config-changed', { config: { card_type: 'pop-up', hash: '#kitchen' } });
     });
 });
 

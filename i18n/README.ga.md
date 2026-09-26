@@ -178,6 +178,7 @@ Ligeann an cárta seo duit preabfhuinneog a chruthú le hábhar ar bith. Bíonn 
 | `auto_close` | string | Roghnach | Am istigh i milleasoicindí (m.sh. `10000` do 10s) | Dún an phreabfhuinneog go huathoibríoch tar éis am istigh |
 | `close_on_click` | boolean | Roghnach | `true` nó `false` (réamhshocraithe) | Dún an phreabfhuinneog go huathoibríoch tar éis idirghníomhaíocht ar bith |
 | `close_by_clicking_outside` | boolean | Roghnach | `true` (réamhshocraithe) nó `false` | Dún an phreabfhuinneog trí chliceáil lasmuigh di |
+| `slide_to_close` | boolean nó string | Roghnach | `true` (réamhshocraithe), `header` nó `false` | Dún an phreabfhuinneog trína sleamhnú síos |
 | `width_desktop` | string | Roghnach | Aon luach CSS | Leithead ar an deasc oibre (`100%` de réir réamhshocraithe ar an bhfón póca) |
 | `margin` | string | Roghnach | Aon luach CSS | Ná húsáid é seo ach **amháin** mura bhfuil do phreabfhuinneog láraithe i gceart ar an bhfón póca (m.sh. `13px`) |
 | `margin_top_mobile` | string | Roghnach | Aon luach CSS | Corrlach barr ar an bhfón póca (m.sh. `-56px` má tá do cheanntásc folaithe) |

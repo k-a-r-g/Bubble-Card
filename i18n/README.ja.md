@@ -178,6 +178,7 @@ Bubble Card は、Home Assistant 向けのミニマルでカスタマイズ可�
 | `auto_close` | string | 任意 | ミリ秒単位のタイムアウト (例: 10秒なら `10000`) | タイムアウト後にポップアップを自動的に閉じます |
 | `close_on_click` | boolean | 任意 | `true` または `false` (デフォルト) | 何らかの操作の後にポップアップを自動的に閉じます |
 | `close_by_clicking_outside` | boolean | 任意 | `true` (デフォルト) または `false` | ポップアップの外側をクリックして閉じます |
+| `slide_to_close` | boolean または string | 任意 | `true` (デフォルト)、`header` または `false` | ポップアップを下にスライドして閉じます |
 | `width_desktop` | string | 任意 | 任意の CSS 値 | デスクトップでの幅 (モバイルではデフォルトで `100%`) |
 | `margin` | string | 任意 | 任意の CSS 値 | ポップアップがモバイルでうまく中央揃えにならない場合に**限り**使用してください (例: `13px`) |
 | `margin_top_mobile` | string | 任意 | 任意の CSS 値 | モバイルでの上部マージン (ヘッダーが非表示の場合は例えば `-56px`) |

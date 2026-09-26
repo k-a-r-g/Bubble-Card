@@ -9,6 +9,7 @@
       "styling_options": "Stiliaus parinktys",
       "styling_layout_options": "Stiliaus ir išdėstymo parinktys",
       "hidden": "Paslėpta",
+      "disabled": "Išjungta",
       "move_up": "Perkelti aukštyn",
       "move_down": "Perkelti žemyn",
       "no_fields": "Laukų nenurodyta"
@@ -277,6 +278,8 @@
       "settings": "Iškylančiojo lango nustatymai",
       "auto_close": "Automatinis uždarymas milisekundėmis (pvz., 15000)",
       "close_outside": "Uždaryti iškylantįjį langą spustelėjus už jo ribų (reikia atnaujinti puslapį)",
+      "slide_to_close": "Braukite, kad uždarytumėte",
+      "slide_to_close_header": "Tik iš antraštės",
       "close_on_click": "Uždaryti iškylantįjį langą po bet kokio spustelėjimo ar bakstelėjimo",
       "background_update": "Atnaujinti korteles fone (nerekomenduojama)",
       "background_update_title": "Atnaujinimai fone",

@@ -9,6 +9,7 @@
       "styling_options": "Stylopsjes",
       "styling_layout_options": "Styl- en yndielingsopsjes",
       "hidden": "Ferburgen",
+      "disabled": "Utskeakele",
       "move_up": "Omheech ferpleatse",
       "move_down": "Omleech ferpleatse",
       "no_fields": "Gjin fjilden definiearre"
@@ -277,6 +278,8 @@
       "settings": "Pop-upynstellingen",
       "auto_close": "Automatysk slute yn millisekonden (bgl. 15000)",
       "close_outside": "Pop-up slute troch derbûten te klikken (fernijen fereaske)",
+      "slide_to_close": "Feegje om te sluten",
+      "slide_to_close_header": "Allinnich fan de kop út",
       "close_on_click": "Pop-up slute nei elke klik of tik",
       "background_update": "Kaarten op de eftergrûn bywurkje (net oanrikkemandearre)",
       "background_update_title": "Eftergrûnfernijingen",

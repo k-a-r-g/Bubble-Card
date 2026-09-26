@@ -9,6 +9,7 @@
       "styling_options": "Stiilivalikud",
       "styling_layout_options": "Stiili- ja paigutusvalikud",
       "hidden": "Peidetud",
+      "disabled": "Keelatud",
       "move_up": "Liiguta üles",
       "move_down": "Liiguta alla",
       "no_fields": "Välju pole määratud"
@@ -277,6 +278,8 @@
       "settings": "Hüpikakna seaded",
       "auto_close": "Automaatne sulgemine millisekundites (nt 15000)",
       "close_outside": "Sulge hüpikaken sellest väljaspool klõpsates (vajalik värskendus)",
+      "slide_to_close": "Libista sulgemiseks",
+      "slide_to_close_header": "Ainult päisest",
       "close_on_click": "Sulge hüpikaken pärast mis tahes klõpsu või puudutust",
       "background_update": "Uuenda kaarte taustal (pole soovitatav)",
       "background_update_title": "Taustauuendused",

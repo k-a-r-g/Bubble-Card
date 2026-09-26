@@ -178,6 +178,7 @@ Dës Kaart erlaabt et der, e Pop-up mat egal wéi engem Inhalt z'erstellen. All 
 | `auto_close` | string | Optional | En Timeout a Millisekonnen (z.B. `10000` fir 10s) | Mécht de Pop-up automatesch no engem Timeout zou |
 | `close_on_click` | boolean | Optional | `true` oder `false` (Standard) | Mécht de Pop-up automatesch no all Interaktioun zou |
 | `close_by_clicking_outside` | boolean | Optional | `true` (Standard) oder `false` | Mécht de Pop-up zou wann een dobaussen klickt |
+| `slide_to_close` | boolean oder string | Optional | `true` (Standard), `header` oder `false` | Mécht de Pop-up zou wann een en no ënne wëscht |
 | `width_desktop` | string | Optional | Egal wéi en CSS-Wäert | Breet um Desktop (`100%` standardmäisseg um Mobil) |
 | `margin` | string | Optional | Egal wéi en CSS-Wäert | Benotz dëst **nëmmen** wann däi Pop-up um Mobil net gutt zentréiert ass (z.B. `13px`) |
 | `margin_top_mobile` | string | Optional | Egal wéi en CSS-Wäert | Ofstand uewen um Mobil (z.B. `-56px` wann däin Header verstoppt ass) |

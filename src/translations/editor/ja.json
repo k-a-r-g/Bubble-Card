@@ -9,6 +9,7 @@
       "styling_options": "スタイルオプション",
       "styling_layout_options": "スタイルとレイアウトのオプション",
       "hidden": "非表示",
+      "disabled": "無効",
       "move_up": "上へ移動",
       "move_down": "下へ移動",
       "no_fields": "フィールドが定義されていません"
@@ -277,6 +278,8 @@
       "settings": "ポップアップ設定",
       "auto_close": "自動的に閉じるまでのミリ秒 (例：15000)",
       "close_outside": "ポップアップの外側をクリックして閉じる (再読み込みが必要)",
+      "slide_to_close": "スライドで閉じる",
+      "slide_to_close_header": "ヘッダーからのみ",
       "close_on_click": "クリックまたはタップ後にポップアップを閉じる",
       "background_update": "バックグラウンドでカードを更新 (非推奨)",
       "background_update_title": "バックグラウンド更新",

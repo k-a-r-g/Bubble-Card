@@ -178,6 +178,7 @@ Bubble Card 是一个为 Home Assistant 打造的极简、可自定义的卡片�
 | `auto_close` | string | 可选 | 以毫秒为单位的超时时间 (例如 `10000` 代表 10 秒) | 超时后自动关闭弹窗 |
 | `close_on_click` | boolean | 可选 | `true` 或 `false` (默认) | 任意交互后自动关闭弹窗 |
 | `close_by_clicking_outside` | boolean | 可选 | `true` (默认) 或 `false` | 点击弹窗外部关闭弹窗 |
+| `slide_to_close` | boolean 或 string | 可选 | `true` (默认)、`header` 或 `false` | 向下滑动关闭弹窗 |
 | `width_desktop` | string | 可选 | 任意 CSS 值 | 桌面端宽度 (移动端默认为 `100%`) |
 | `margin` | string | 可选 | 任意 CSS 值 | **仅**当你的弹窗在移动端未能良好居中时使用 (例如 `13px`) |
 | `margin_top_mobile` | string | 可选 | 任意 CSS 值 | 移动端顶部边距 (例如头部隐藏时可用 `-56px`) |

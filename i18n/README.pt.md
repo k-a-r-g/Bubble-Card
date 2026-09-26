@@ -178,6 +178,7 @@ Este cartão permite criar um pop-up com qualquer conteúdo. Cada pop-up está *
 | `auto_close` | string | Opcional | Um tempo limite em milissegundos (por exemplo, `10000` para 10s) | Fecha automaticamente o pop-up após um tempo limite |
 | `close_on_click` | boolean | Opcional | `true` ou `false` (predefinição) | Fecha automaticamente o pop-up após qualquer interação |
 | `close_by_clicking_outside` | boolean | Opcional | `true` (predefinição) ou `false` | Fecha o pop-up ao clicar fora dele |
+| `slide_to_close` | boolean ou string | Opcional | `true` (predefinição), `header` ou `false` | Fecha o pop-up ao deslizá-lo para baixo |
 | `width_desktop` | string | Opcional | Qualquer valor CSS | Largura no computador (`100%` por predefinição no telemóvel) |
 | `margin` | string | Opcional | Qualquer valor CSS | Use isto **apenas** se o seu pop-up não estiver bem centrado no telemóvel (por exemplo, `13px`) |
 | `margin_top_mobile` | string | Opcional | Qualquer valor CSS | Margem superior no telemóvel (por exemplo, `-56px` se o cabeçalho estiver oculto) |

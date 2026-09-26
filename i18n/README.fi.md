@@ -178,6 +178,7 @@ Tämä kortti antaa sinun luoda ponnahdusikkunan minkä tahansa sisällön kanss
 | `auto_close` | string | Valinnainen | Aikakatkaisu millisekunteina (esim. `10000` 10 sekunnille) | Sulkee ponnahdusikkunan automaattisesti aikakatkaisun jälkeen |
 | `close_on_click` | boolean | Valinnainen | `true` tai `false` (oletus) | Sulkee ponnahdusikkunan automaattisesti minkä tahansa toiminnon jälkeen |
 | `close_by_clicking_outside` | boolean | Valinnainen | `true` (oletus) tai `false` | Sulkee ponnahdusikkunan klikkaamalla sen ulkopuolelta |
+| `slide_to_close` | boolean tai string | Valinnainen | `true` (oletus), `header` tai `false` | Sulkee ponnahdusikkunan liu'uttamalla sen alas |
 | `width_desktop` | string | Valinnainen | Mikä tahansa CSS-arvo | Leveys työpöydällä (`100%` oletuksena mobiilissa) |
 | `margin` | string | Valinnainen | Mikä tahansa CSS-arvo | Käytä tätä **vain**, jos ponnahdusikkunasi ei ole hyvin keskitetty mobiilissa (esim. `13px`) |
 | `margin_top_mobile` | string | Valinnainen | Mikä tahansa CSS-arvo | Yläreunan marginaali mobiilissa (esim. `-56px`, jos otsikkosi on piilotettu) |

@@ -681,10 +681,13 @@ describe('prepareStandaloneStructure', () => {
         expect(context.popUp.classList.contains('has-popup-shadow')).toBe(false);
     });
 
-    test('gives the shell one passive touchstart and nothing else to carry', () => {
+    test('gives the shell its touchstart pair and nothing else to carry', () => {
         const context = buildStandalonePopupContext();
 
         expect(typeof context.handleTouchStart).toBe('function');
+        // The capture one only remembers the real touch, for a card that stops
+        // it and sends a copy on instead (#2627).
+        expect(typeof context.handleTouchStartCapture).toBe('function');
         expect(typeof context.releasePopupSlideToClose).toBe('function');
         // The header no longer owns a gesture of its own: touchstart on the
         // shell covers it, and the drag runs on the document from there.

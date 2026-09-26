@@ -178,6 +178,7 @@ Cette carte vous permet de créer une pop-up avec le contenu de votre choix. Cha
 | `auto_close` | string | Optionnel | Un délai en millisecondes (ex. `10000` pour 10 s) | Ferme automatiquement la pop-up après un délai |
 | `close_on_click` | boolean | Optionnel | `true` ou `false` (par défaut) | Ferme automatiquement la pop-up après toute interaction |
 | `close_by_clicking_outside` | boolean | Optionnel | `true` (par défaut) ou `false` | Ferme la pop-up en cliquant en dehors de celle-ci |
+| `slide_to_close` | boolean ou string | Optionnel | `true` (par défaut), `header` ou `false` | Ferme la pop-up en la faisant glisser vers le bas |
 | `width_desktop` | string | Optionnel | N'importe quelle valeur CSS | Largeur sur ordinateur (`100%` par défaut sur mobile) |
 | `margin` | string | Optionnel | N'importe quelle valeur CSS | À utiliser **uniquement** si votre pop-up n'est pas bien centrée sur mobile (ex. `13px`) |
 | `margin_top_mobile` | string | Optionnel | N'importe quelle valeur CSS | Marge haute sur mobile (ex. `-56px` si votre en-tête est masqué) |

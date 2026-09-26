@@ -178,6 +178,7 @@ Esta tarxeta permíteche crear un pop-up con calquera contido. Cada pop-up está
 | `auto_close` | string | Opcional | Un tempo límite en milisegundos (por exemplo, `10000` para 10s) | Pecha automaticamente o pop-up despois dun tempo límite |
 | `close_on_click` | boolean | Opcional | `true` ou `false` (por defecto) | Pecha automaticamente o pop-up despois de calquera interacción |
 | `close_by_clicking_outside` | boolean | Opcional | `true` (por defecto) ou `false` | Pecha o pop-up premendo fóra del |
+| `slide_to_close` | boolean ou string | Opcional | `true` (por defecto), `header` ou `false` | Pecha o pop-up deslizándoo cara abaixo |
 | `width_desktop` | string | Opcional | Calquera valor CSS | Ancho no escritorio (`100%` por defecto en móbil) |
 | `margin` | string | Opcional | Calquera valor CSS | Usa isto **só** se o teu pop-up non está ben centrado en móbil (por exemplo, `13px`) |
 | `margin_top_mobile` | string | Opcional | Calquera valor CSS | Marxe superior en móbil (por exemplo, `-56px` se a túa cabeceira está oculta) |

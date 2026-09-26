@@ -1,4 +1,4 @@
-import { getAttribute, isStateOn, isStateRequiringAttention, formatDateTime, createElement, getStateSurfaceColor, getState, isTimerEntity, timerTimeRemaining, computeDisplayTimer, startElementTimerInterval, stopElementTimerInterval, formatNumericValue, getTemperatureUnit } from "../../tools/utils.js";
+import { getAttribute, isStateOn, isStateRequiringAttention, formatDateTime, createElement, getStateSurfaceColor, getState, getStyleGeneration, isSurfaceColorLight, isTimerEntity, timerTimeRemaining, computeDisplayTimer, startElementTimerInterval, stopElementTimerInterval, formatNumericValue, getTemperatureUnit } from "../../tools/utils.js";
 import { applyScrollingEffect } from "../../tools/text-scrolling.js";
 import { getIcon, getLightColorSignature, getImage } from "../../tools/icon.js";
 import { addActions, addFeedback } from "../../tools/tap-actions.js";
@@ -130,6 +130,15 @@ export function updateElementVisibility(element, options, displayedState) {
   }
 }
 
+// Where the text on a sub-button has to flip to dark. The value sits in the gap
+// between the brightest state colour that still reads in white (climate dry, at
+// 0.639) and a lamp at warm white, which measures around 0.70 and does not. It
+// is centred in that gap on purpose, since a lamp drifts with its own colour and
+// one measured at 0.698 kept its white text when the threshold sat at 0.70.
+// Measured with calculateLuminance, which has no gamma correction and so reads
+// a washed-out pastel as lighter than its WCAG luminance would.
+const BRIGHT_BACKGROUND_LUMINANCE = 0.67;
+
 // Update the background classes and dynamic light background color
 // Uses same optimization pattern as changeIcon: compute new value, compare with current, update only if different
 export function updateBackground(element, options) {
@@ -139,6 +148,7 @@ export function updateBackground(element, options) {
     if (element.classList.contains('background-on') || element.classList.contains('background-off')) {
       element.classList.remove('background-on', 'background-off');
     }
+    clearBrightBackground(element);
     if (element.style.getPropertyValue('--bubble-sub-button-light-background-color')) {
       element.style.removeProperty('--bubble-sub-button-light-background-color');
     }
@@ -186,6 +196,17 @@ export function updateBackground(element, options) {
       element.style.setProperty('--bubble-sub-button-light-background-color', newColor);
     }
 
+    // The colour an expression paints moves with the theme even when the
+    // expression itself does not, so the read is repeated when the theme does.
+    const generation = getStyleGeneration();
+    if (currentColor !== newColor || colorChanged || element._brightBackgroundGeneration !== generation) {
+      element._brightBackgroundGeneration = generation;
+      element.classList.toggle(
+        'bright-background',
+        isSurfaceColorLight(newColor, context, BRIGHT_BACKGROUND_LUMINANCE)
+      );
+    }
+
     if (!element.classList.contains('background-on')) {
       element.classList.add('background-on');
       element.classList.remove('background-off');
@@ -195,9 +216,17 @@ export function updateBackground(element, options) {
       element.classList.add('background-off');
       element.classList.remove('background-on');
     }
+    clearBrightBackground(element);
     if (element.style.getPropertyValue('--bubble-sub-button-light-background-color')) {
       element.style.removeProperty('--bubble-sub-button-light-background-color');
     }
+  }
+}
+
+function clearBrightBackground(element) {
+  element._brightBackgroundGeneration = undefined;
+  if (element.classList.contains('bright-background')) {
+    element.classList.remove('bright-background');
   }
 }
 

@@ -23,6 +23,32 @@ import {
 
 const CONTEXT_NAMES = { device_name: 'device', area_name: 'area', floor_name: 'floor' };
 
+// What a state line is formatted with, as Home Assistant's own cards compare it
+// before rewriting one (hasConfigChanged and hasConfigOrEntityChanged, in
+// panels/lovelace/common/has-changed.ts). Home Assistant replaces its
+// formatters once the translations and the registries are loaded, so a line
+// written before them shows the raw state until it is written again.
+export function stateLineFormatting(hass, entityId) {
+    return {
+        locale: hass?.locale,
+        localize: hass?.localize,
+        formatEntityState: hass?.formatEntityState,
+        formatEntityAttributeName: hass?.formatEntityAttributeName,
+        formatEntityAttributeValue: hass?.formatEntityAttributeValue,
+        displayPrecision: hass?.entities?.[entityId]?.display_precision,
+    };
+}
+
+export function stateLineFormattingChanged(previous, hass, entityId) {
+    return !previous ||
+        previous.locale !== hass?.locale ||
+        previous.localize !== hass?.localize ||
+        previous.formatEntityState !== hass?.formatEntityState ||
+        previous.formatEntityAttributeName !== hass?.formatEntityAttributeName ||
+        previous.formatEntityAttributeValue !== hass?.formatEntityAttributeValue ||
+        previous.displayPrecision !== hass?.entities?.[entityId]?.display_precision;
+}
+
 function capitalize(text) {
     return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
 }

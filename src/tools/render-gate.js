@@ -18,14 +18,51 @@ import { resolveStateContent, stateContentHasClock } from './state-content.js';
 
 const canProxy = typeof Proxy === 'function';
 
-// Everything outside `states` that the card's own code reads, compared by
-// identity alongside the entity states. Home Assistant replaces each of these
-// only when it really changes, so the comparison is cheap and exact. The
-// registries are on the list because a card resolves names, icons and areas
-// through them: leaving `entities` out let a person card go one render stale,
-// which is how the list came to be checked against the source rather than
-// guessed.
-const HASS_KEYS = ['themes', 'locale', 'config', 'user', 'language', 'entities', 'devices', 'areas'];
+// Everything outside `states` counts, not a list of it. Home Assistant builds a
+// new `hass` by copying the previous one and replacing only what changed, and a
+// state update replaces `states` alone. So a new object whose other keys all
+// kept their identity carries nothing but states, and anything else is a change
+// every card has to see. A list kept missing keys, the registries first, then
+// the formatters, which arrive on their own once the translations are loaded.
+//
+// The comparison runs once per `hass` object and the answer is shared, so a card
+// only compares one number.
+let lastHass = null;
+let hassGeneration = 0;
+
+// While a dashboard starts, everything arrives late and in any order, the
+// theme, the translations, the modules, and whatever a module reads outside
+// `hass`. Nothing is skipped during this window after Home Assistant connects,
+// on a load or after a reconnection, which is exactly how every card rendered
+// before the gate existed. Measured on a 31 card dashboard under a 4x CPU
+// throttle, 50 to 70 ms more rendering over the whole window.
+const settleMs = 10000;
+let settleUntil = 0;
+
+function hassGenerationFor(hass) {
+    if (hass === lastHass) return hassGeneration;
+
+    const previous = lastHass;
+    lastHass = hass;
+
+    if (hass.connected && !previous?.connected) {
+        settleUntil = monotonicNow() + settleMs;
+    }
+
+    if (!previous) {
+        return ++hassGeneration;
+    }
+
+    let count = 0;
+    for (const key in hass) {
+        count++;
+        if (key !== 'states' && hass[key] !== previous[key]) return ++hassGeneration;
+    }
+    for (const key in previous) count--;
+    if (count !== 0) return ++hassGeneration;
+
+    return hassGeneration;
+}
 
 // Renders that advance with the clock rather than with hass. No proxy can see
 // that dependency: a media player's progress bar moves while its state object
@@ -107,7 +144,6 @@ function readsFor(context) {
         reads = context._renderReads = {
             hass: context._hass,
             ids: new Set(),
-            keys: new Set(),
             all: false,
             proxy: null,
         };
@@ -141,10 +177,10 @@ export function trackedHass(context) {
         },
     });
 
+    // The rest of hass needs no tracking, every key of it is compared anyway.
     reads.proxy = new Proxy(hass, {
         get(target, prop) {
             if (prop === 'states') return statesProxy;
-            if (typeof prop === 'string') reads.keys.add(prop);
             return target[prop];
         },
         ownKeys(target) {
@@ -181,9 +217,15 @@ export function shouldSkipRender(element) {
     const hass = element._hass;
     if (!hass || !hass.states) return false;
 
+    // Read first, since this is also what notices a connection.
+    const generation = hassGenerationFor(hass);
+    const now = monotonicNow();
+    if (now < settleUntil) return false;
+
     const gate = gateFor(element);
     if (gate.clockDriven || !gate.snapshot) return false;
-    if (monotonicNow() - gate.at > maxSkipMs) return false;
+    if (now - gate.at > maxSkipMs) return false;
+    if (gate.snapshot.generation !== generation) return false;
 
     // Absent reads mean the last render ran no template that could look at
     // hass: either the card has none, or they were all static. Both are cards
@@ -200,9 +242,6 @@ export function shouldSkipRender(element) {
         for (const entity of reads.ids) {
             if (previous.states.get(entity) !== hass.states[entity]) return false;
         }
-    }
-    for (const key of previous.keys.keys()) {
-        if (previous.keys.get(key) !== hass[key]) return false;
     }
     return true;
 }
@@ -223,15 +262,7 @@ export function noteRender(element) {
         for (const entity of reads.ids) states.set(entity, hass.states[entity]);
     }
 
-    const keys = new Map();
-    for (const key of HASS_KEYS) keys.set(key, hass[key]);
-    if (reads) {
-        for (const key of reads.keys) {
-            if (key !== 'states') keys.set(key, hass[key]);
-        }
-    }
-
-    gate.snapshot = { states, keys };
+    gate.snapshot = { states, generation: hassGenerationFor(hass) };
     gate.at = monotonicNow();
 }
 

@@ -178,6 +178,7 @@ Esta tarjeta te permite crear un pop-up con cualquier contenido. Cada pop-up est
 | `auto_close` | string | Opcional | Un tiempo de espera en milisegundos (por ejemplo, `10000` para 10s) | Cierra automáticamente el pop-up después de un tiempo de espera |
 | `close_on_click` | boolean | Opcional | `true` o `false` (predeterminado) | Cierra automáticamente el pop-up después de cualquier interacción |
 | `close_by_clicking_outside` | boolean | Opcional | `true` (predeterminado) o `false` | Cierra el pop-up al hacer clic fuera de él |
+| `slide_to_close` | boolean o string | Opcional | `true` (predeterminado), `header` o `false` | Cierra el pop-up al deslizarlo hacia abajo |
 | `width_desktop` | string | Opcional | Cualquier valor CSS | Ancho en escritorio (`100%` de forma predeterminada en móvil) |
 | `margin` | string | Opcional | Cualquier valor CSS | Usa esto **solo** si tu pop-up no está bien centrado en móvil (por ejemplo, `13px`) |
 | `margin_top_mobile` | string | Opcional | Cualquier valor CSS | Margen superior en móvil (por ejemplo, `-56px` si tu encabezado está oculto) |

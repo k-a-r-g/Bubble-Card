@@ -9,6 +9,7 @@
       "styling_options": "Tyyliasetukset",
       "styling_layout_options": "Tyyli- ja asetteluasetukset",
       "hidden": "Piilotettu",
+      "disabled": "Pois käytöstä",
       "move_up": "Siirrä ylös",
       "move_down": "Siirrä alas",
       "no_fields": "Kenttiä ei ole määritetty"
@@ -277,6 +278,8 @@
       "settings": "Ponnahdusikkunan asetukset",
       "auto_close": "Automaattinen sulkeminen millisekunteina (esim. 15000)",
       "close_outside": "Sulje ponnahdusikkuna napsauttamalla sen ulkopuolella (vaatii päivityksen)",
+      "slide_to_close": "Sulje liu'uttamalla",
+      "slide_to_close_header": "Vain otsikosta",
       "close_on_click": "Sulje ponnahdusikkuna minkä tahansa napsautuksen tai napautuksen jälkeen",
       "background_update": "Päivitä kortit taustalla (ei suositella)",
       "background_update_title": "Taustapäivitykset",
